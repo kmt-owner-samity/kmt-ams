@@ -3,7 +3,7 @@
    কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
    ===================================================================== */
 
-const ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
+const UM_ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
 
 /* ===== English-only filter ===== */
 function englishOnly(input) {
