@@ -374,6 +374,7 @@ function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে', validat
     (fields.length ? $('df0') : $('dok')).focus();
   });
 }
+
 const ICO = { inv: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6', ed: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4', del: 'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3' };
 const ib = (c, id, tt, d) => `<button class="ib ${c}" data-id="${id}" title="${tt}" aria-label="${tt}">${svg('<path d="' + d + '"/>', 18)}</button>`;
 
