@@ -283,6 +283,19 @@ nav button.on{
 }
 [hidden]{display:none!important}
 
+/* ============ Z-INDEX LAYERING ============ */
+/* User Management modal */
+#userOv{z-index:60}
+
+/* Invoice / Service Charge */
+#invOv,#scOv{z-index:80}
+
+/* Dialog (ask) — user-manager-এর উপরে থাকবে */
+#dlg{z-index:100}
+
+/* Login — সবার উপরে */
+#loginOv{z-index:200}
+
 /* ============ DATE INPUT ============ */
 .dwrap{position:relative}
 .dwrap #d{padding-right:46px}
