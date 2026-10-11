@@ -117,6 +117,16 @@
       <div id="bd-out"></div>
     </div>
   </div>
+  <div class="card noprint adm-only" id="openCard">
+    <h2>অ্যাডমিনের জন্য</h2>
+    <div class="admgrid">
+      <button class="btn ghost" onclick="adminAct('open')">জের সম্পাদনা</button>
+      <button class="btn ghost" onclick="adminAct('transfer')">ট্রান্সফার জের</button>
+      <button class="btn ghost" onclick="adminAct('sc')">সার্ভিস চার্জ সেটআপ</button>
+      <button class="btn ghost" onclick="adminAct('pw')">পাসওয়ার্ড পরিবর্তন</button>
+      <button class="btn ghost" id="impBtn" hidden onclick="adminAct('import')">পুরনো ডাটা আনুন</button>
+    </div>
+  </div>
 </section>
 
 <!-- ============ ENTRY FORM ============ -->
@@ -189,10 +199,8 @@
 </main>
 
 <!-- ===================================================================
-     OVERLAYS
+     MODAL (ask)
      =================================================================== -->
-
-<!-- Modal Dialog -->
 <div class="ov" id="dlg" hidden>
   <div class="card box" role="dialog" aria-modal="true" aria-labelledby="dt">
     <h2 id="dt"></h2>
@@ -205,7 +213,9 @@
   </div>
 </div>
 
-<!-- Invoice -->
+<!-- ===================================================================
+     INVOICE
+     =================================================================== -->
 <div class="ov" id="invOv" hidden>
   <div class="invbox">
     <div class="row ibar">
@@ -217,7 +227,9 @@
   </div>
 </div>
 
-<!-- Service Charge Setup -->
+<!-- ===================================================================
+     SERVICE CHARGE SETUP
+     =================================================================== -->
 <div class="ov" id="scOv" hidden>
   <div class="invbox" style="max-width:520px;width:100%">
     <h2 style="margin:0">সার্ভিস চার্জ সেটআপ</h2>
@@ -233,7 +245,9 @@
   </div>
 </div>
 
-<!-- User Management -->
+<!-- ===================================================================
+     USER MANAGEMENT
+     =================================================================== -->
 <div class="ov" id="userOv" hidden>
   <div class="invbox" style="max-width:640px;width:100%">
     <div class="row" style="justify-content:space-between;margin-bottom:12px">
@@ -247,7 +261,9 @@
   </div>
 </div>
 
-<!-- Login -->
+<!-- ===================================================================
+     LOGIN
+     =================================================================== -->
 <div class="ov login" id="loginOv">
   <form class="card box" id="loginForm">
     <h2 style="text-align:center;margin:0">কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</h2>
@@ -261,10 +277,14 @@
   </form>
 </div>
 
-<!-- PDF Capture -->
+<!-- ===================================================================
+     PDF CAPTURE
+     =================================================================== -->
 <div id="cap" aria-hidden="true"></div>
 
-<!-- Toast -->
+<!-- ===================================================================
+     TOAST
+     =================================================================== -->
 <div id="toast" role="status"></div>
 
 <!-- ===================================================================
