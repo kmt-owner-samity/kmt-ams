@@ -267,7 +267,7 @@ export const DB = {
     const [acc, cat, fl, st, rt] = await Promise.all([
       SB.req('/rest/v1/accounts?select=id,code,name,kind,opening_balance&order=id'),
       SB.req('/rest/v1/categories?select=id,kind,name,parent_id,is_service_charge&is_active=eq.true'),
-      SB.req('/rest/v1/flats?select=id,flat_no&is_active=eq.true'),
+      SB.req('/rest/v1/flats?select=id,flat_no,owner_name&is_active=eq.true'),
       SB.req('/rest/v1/settings?select=key,value'),
       SB.req('/rest/v1/service_charge_rates?select=flat_id,monthly_amount,effective_from&order=effective_from.desc'),
     ]);
