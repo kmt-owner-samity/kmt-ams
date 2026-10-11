@@ -140,7 +140,20 @@
     </div>
   </main>
 </div>
-
+<!-- ===================================================================
+     MODAL DIALOG
+     =================================================================== -->
+<div class="modal-overlay" id="modalOv" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h2 id="modalTitle"></h2>
+    <p id="modalMsg" hidden></p>
+    <div id="modalFields"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" id="modalCancel">বাতিল</button>
+      <button type="button" class="btn" id="modalOk">ঠিক আছে</button>
+    </div>
+  </div>
+</div>
 <!-- ===================================================================
      TOAST
      =================================================================== -->
