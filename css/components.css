@@ -1,0 +1,456 @@
+/* =====================================================================
+   components.css — Buttons, Forms, Chips, Modal, Services
+   ===================================================================== */
+
+/* ============ Buttons ============ */
+.btn{
+  border: 0;
+  border-radius: var(--radius-sm);
+  padding: 11px 18px;
+  font-weight: 600;
+  font-size: .92rem;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform .15s, box-shadow .2s, filter .2s;
+  box-shadow: var(--shadow-sm);
+}
+.btn:hover:not(:disabled){
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  filter: brightness(1.05);
+}
+.btn:active:not(:disabled){
+  transform: translateY(0) scale(.98);
+}
+.btn:disabled{
+  opacity: .65;
+  cursor: not-allowed;
+}
+
+.btn.ghost{
+  background: transparent;
+  color: var(--ink);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+}
+.btn.ghost:hover:not(:disabled){
+  border-color: var(--line-strong);
+  background: var(--bg);
+  filter: none;
+}
+
+.btn.dark{
+  background: var(--ink);
+}
+
+.btn.in{
+  background: var(--in);
+}
+
+.btn.out{
+  background: var(--out);
+}
+
+.btn.sm{
+  padding: 8px 12px;
+  font-size: .82rem;
+}
+
+.btn.block{
+  width: 100%;
+}
+
+/* ============ Segmented Toggle (Income/Expense) ============ */
+.seg-toggle{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 5px;
+  margin-bottom: 18px;
+  gap: 4px;
+}
+.seg-toggle button{
+  border: 0;
+  background: transparent;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--mute);
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all .22s cubic-bezier(.4,0,.2,1);
+}
+.seg-toggle button .em{ font-size: 1.05rem; line-height: 1 }
+.seg-toggle button.on{
+  background: var(--bg-elev);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.seg-toggle button[data-t="income"].on{ color: var(--in) }
+.seg-toggle button[data-t="expense"].on{ color: var(--out) }
+
+/* ============ Form Grid ============ */
+.form-grid{
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr 1fr;
+}
+.form-grid .full{
+  grid-column: 1 / -1;
+}
+@media(max-width:600px){
+  .form-grid{ grid-template-columns: 1fr }
+}
+
+/* Date input with calendar picker */
+.date-wrap{
+  position: relative;
+}
+.date-wrap .dtext{
+  padding-right: 46px;
+}
+.date-wrap .cal{
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--mute);
+  pointer-events: none;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+}
+.date-wrap .dpk{
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  opacity: 0;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+.date-wrap .dpk::-webkit-calendar-picker-indicator{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Owner display */
+.owner-display{
+  font-size: .85rem;
+  color: var(--out);
+  font-weight: 600;
+  margin-top: 6px;
+  min-height: 1.3em;
+}
+
+/* ============ Payment Chips (accounts) ============ */
+.chips{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.chip{
+  position: relative;
+  margin: 0;
+  cursor: pointer;
+}
+.chip input{
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.chip span{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 12px 8px;
+  min-height: 88px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg-elev);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: .88rem;
+  line-height: 1.3;
+  transition: all .2s;
+}
+.chip svg{ color: var(--mute); transition: color .2s }
+.chip small{
+  font-weight: 400;
+  color: var(--mute);
+  font-size: .72rem;
+}
+.chip input:checked + span{
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--bg-elev));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.chip input:checked + span svg{ color: var(--accent) }
+.chip input:focus-visible + span{
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ============ Month Slider (for service charge) ============ */
+.month-slider{
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.month-slider .arr{
+  flex-shrink: 0;
+  width: 38px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  font-size: 1.15rem;
+  cursor: pointer;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  transition: all .15s;
+}
+.month-slider .arr:hover{
+  background: var(--bg);
+  border-color: var(--line-strong);
+}
+.month-track{
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+  padding: 4px 2px;
+}
+.month-track::-webkit-scrollbar{ display: none }
+.month-chip{
+  flex: none;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-elev);
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: .85rem;
+  transition: all .15s;
+}
+.month-chip:hover{
+  border-color: var(--line-strong);
+  background: var(--bg);
+}
+.month-chip.adv{
+  border-style: dashed;
+}
+.month-chip.on{
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-elev));
+  color: var(--accent);
+}
+
+/* ============ Modal (Dialog) ============ */
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  background: rgba(15,42,61,.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: modalFade .2s ease;
+}
+@keyframes modalFade{
+  from{ opacity: 0 }
+  to{ opacity: 1 }
+}
+.modal-box{
+  width: min(420px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  animation: modalPop .25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modalPop{
+  from{ opacity: 0; transform: scale(.95) translateY(10px) }
+  to{ opacity: 1; transform: none }
+}
+.modal-box h2{
+  font-size: 1.05rem;
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+.modal-box p{
+  margin: 0 0 14px;
+  color: var(--mute);
+  font-size: .88rem;
+  line-height: 1.5;
+}
+.modal-box label{
+  display: block;
+  font-size: .82rem;
+  color: var(--mute);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.modal-box input,
+.modal-box select,
+.modal-box textarea{
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elev);
+  color: var(--ink);
+  font-size: .95rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+.modal-box input:focus,
+.modal-box select:focus,
+.modal-box textarea:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.modal-actions{
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ============ Toast (from base.css, but ensure here) ============ */
+.toast{
+  position: fixed;
+  left: 50%;
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 20px);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 99px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s, transform .25s;
+  z-index: 1100;
+  font-size: .88rem;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  text-align: center;
+}
+.toast.on{
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.toast.err{ background: var(--out) }
+.toast.ok{ background: linear-gradient(135deg, #0d9668, #10b981) }
+
+/* ============ Shake Animation ============ */
+.shake{
+  animation: shakeAnim .4s cubic-bezier(.36,.07,.19,.97);
+}
+@keyframes shakeAnim{
+  10%,90%{ transform: translateX(-2px) }
+  20%,80%{ transform: translateX(4px) }
+  30%,50%,70%{ transform: translateX(-6px) }
+  40%,60%{ transform: translateX(6px) }
+}
+
+/* ============ Admin Menu Dropdown ============ */
+.admin-menu{
+  position: relative;
+  display: inline-block;
+}
+.admin-menu-btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--bg-elev);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all .2s;
+  box-shadow: var(--shadow-sm);
+}
+.admin-menu-btn:hover{
+  background: var(--bg);
+  border-color: var(--line-strong);
+}
+.admin-menu-btn[aria-expanded="true"]{
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+.admin-menu-panel{
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 240px;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
+  z-index: 40;
+  animation: adminMenuIn .18s cubic-bezier(.4,0,.2,1);
+  transform-origin: top right;
+}
+@keyframes adminMenuIn{
+  from{ opacity: 0; transform: scale(.94) translateY(-6px) }
+  to{ opacity: 1; transform: none }
+}
+.admin-menu-panel button{
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .15s;
+}
+.admin-menu-panel button:hover{ background: var(--bg) }
+.admin-menu-panel button:active{ background: var(--line) }
