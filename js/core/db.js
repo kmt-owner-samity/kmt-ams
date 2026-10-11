@@ -265,7 +265,7 @@ export const DB = {
   /* ---- Load reference data (accounts, categories, flats, settings) ---- */
   async loadRef() {
     const [acc, cat, fl, st, rt] = await Promise.all([
-      SB.req('/rest/v1/accounts?select=id,code,opening_balance&order=id'),
+      SB.req('/rest/v1/accounts?select=id,code,name,kind,opening_balance&order=id'),
       SB.req('/rest/v1/categories?select=id,kind,name,parent_id,is_service_charge&is_active=eq.true'),
       SB.req('/rest/v1/flats?select=id,flat_no&is_active=eq.true'),
       SB.req('/rest/v1/settings?select=key,value'),
