@@ -64,30 +64,28 @@ async function addUser() {
     msg: 'একটি নতুন ইউজার অ্যাকাউন্ট তৈরি হবে।',
     fields: [
       { label: 'পূর্ণ নাম', ph: 'যেমন: মোঃ আবুল হাসান' },
-      { label: 'ইউজারনেম', ph: 'যেমন: hasan (ইংরেজি ছোট হাতের অক্ষর)' },
+      { label: 'ইউজারনেম', ph: 'যেমন: hasan' },
       { label: 'ইমেইল (ঐচ্ছিক)', ph: 'খালি রাখলে অটো তৈরি হবে' },
       { label: 'পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)', type: 'password' },
       { label: 'ভূমিকা', type: 'select', options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] }
     ],
-    ok: 'তৈরি করুন'
+    ok: 'তৈরি করুন',
+    // ⚠️ validate callback — OK চাপলে চেক হবে, ভুল হলে dialog বন্ধ হবে না
+    validate: (values) => {
+      const [full_name, login_id, , password] = values.map(s => (s || '').trim());
+      if (!full_name) return 'পূর্ণ নাম দিন';
+      if (!login_id) return 'ইউজারনেম দিন';
+      if (!password) return 'পাসওয়ার্ড দিন';
+      if (password.length < 6) return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর';
+      return null;  // সব ঠিক
+    }
   });
 
   if (!v) return;
 
   let [full_name, login_id, email, password, role] = v.map(s => (s || '').trim());
-
-  // অ্যাডমিন-এর role default
   if (!role) role = 'viewer';
-
-  // Validation — দরকারি ঘর
-  if (!full_name) return toast('পূর্ণ নাম দিন', true);
-  if (!login_id) return toast('ইউজারনেম দিন', true);
-  if (!password) return toast('পাসওয়ার্ড দিন', true);
-  if (password.length < 6) return toast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর', true);
-
-  // ইমেইল না দিলে auto-generate করুন
   if (!email) {
-    // username থেকে email বানান (English-safe)
     const safeLogin = login_id.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'user';
     email = safeLogin + '@kmt.local';
   }
