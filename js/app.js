@@ -1,5 +1,5 @@
 /* =====================================================================
-   app.js — স্ক্রিন, ফর্ম, ড্যাশবোর্ড, লেনদেন, অ্যাডমিন
+   app.js — স্ক্রিন, ফর্ম, ড্যাশবোর্ড, লেনদেন, অ্যাডমিন, প্রোফাইল
    কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
    ===================================================================== */
 
@@ -9,6 +9,8 @@ const tk = n => '৳ ' + (+n || 0).toLocaleString('bn-BD', { maximumFractionDigi
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const bd = n => String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
 const bnDate = s => { const [y, m, d] = s.split('-'); return bd(d + '-' + m + '-' + y.slice(2)) + ' ইং'; };
+const ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
+
 let type = 'income', all = [], open0 = { cash: 0, nbl: 0, pbl: 0 }, scCfg = { def: 0, per: {} };
 
 function toast(m, err) {
@@ -24,6 +26,9 @@ function dbFail(e) {
   toast((e && e.message) || 'অজানা ত্রুটি', true);
   if (e && e.status === 401) showLogin('আবার লগইন করুন।', true);
 }
+
+/* ===== Viewer flash fix — body class apply হওয়ার আগে সব role-only element লুকান ===== */
+document.documentElement.classList.add('no-role');
 
 /* ট্যাব */
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
@@ -249,12 +254,6 @@ const dpickEl = $('dpick');
 if (dpickEl) dpickEl.onchange = () => { if ($('dpick').value) setDateISO($('dpick').value); };
 
 /* ইনভয়েস */
-function nextNo(l, t) {
-  const p = (t.type === 'income' ? 'আয়' : t.type === 'transfer' ? 'ট্রা' : 'ব্যয়') + '-' + t.date.slice(0, 4) + '-';
-  const mx = l.reduce((m, x) => x.no && x.no.startsWith(p) ? Math.max(m, +x.no.slice(p.length)) : m, 0);
-  return p + String(mx + 1).padStart(4, '0');
-}
-
 let curDL = null;
 function openPrev(pages, name) {
   curDL = { pages, name };
@@ -333,15 +332,16 @@ async function render() {
 }
 
 /* মডাল */
-function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে', validate = null }) {
+function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে' }) {
   return new Promise(res => {
     $('dt').textContent = title;
     $('dm').textContent = msg;
     $('dm').hidden = !msg;
     $('df').innerHTML = fields.map((f, i) => {
       const lb = f.label ? `<label for="df${i}">${esc(f.label)}</label>` : '';
+      const ac = f.autocomplete === false ? 'off' : 'off';
       if (f.type === 'select') return lb + `<select id="df${i}" style="margin-bottom:10px"><option value="">বাছাই করুন</option>${f.options.map(([v, t]) => `<option value="${esc(v)}"${v === f.value ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
-      const inp = `<input id="df${i}" type="${f.type || 'text'}" placeholder="${esc(f.ph || '')}" value="${esc(f.value ?? '')}" ${f.type === 'number' ? 'step="any" min="0" inputmode="decimal"' : ''} ${f.mask ? 'inputmode="numeric" maxlength="10" style="padding-right:46px"' : 'style="margin-bottom:10px"'} autocomplete="off">`;
+      const inp = `<input id="df${i}" type="${f.type || 'text'}" placeholder="${esc(f.ph || '')}" value="${esc(f.value ?? '')}" ${f.type === 'number' ? 'step="any" min="0" inputmode="decimal"' : ''} ${f.mask ? 'inputmode="numeric" maxlength="10" style="padding-right:46px"' : 'style="margin-bottom:10px"'} autocomplete="${ac}">`;
       return lb + (f.mask === 'date' ? `<div class="dwrap" style="margin-bottom:10px">${inp}<span class="cal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><input type="date" id="dp${i}" class="dpk" aria-label="ক্যালেন্ডার"></div>` : inp);
     }).join('');
     fields.forEach((f, i) => {
@@ -353,21 +353,7 @@ function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে', validat
     });
     $('dok').textContent = ok;
     $('dlg').hidden = false;
-
-    const done = v => {
-      // validate callback থাকলে সেটা call করি
-      if (v !== null && validate) {
-        const err = validate(v);
-        if (err) {
-          toast(err, true);
-          return;  // ← dialog বন্ধ হবে না
-        }
-      }
-      $('dlg').hidden = true;
-      $('dok').onclick = $('dno').onclick = document.onkeydown = null;
-      res(v);
-    };
-
+    const done = v => { $('dlg').hidden = true; $('dok').onclick = $('dno').onclick = document.onkeydown = null; res(v); };
     $('dok').onclick = () => done(fields.map((_, i) => $('df' + i).value));
     $('dno').onclick = () => done(null);
     document.onkeydown = e => { if (e.key === 'Escape') done(null); else if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') $('dok').click(); };
@@ -404,9 +390,9 @@ async function changePw() {
   const v = await ask({
     title: 'পাসওয়ার্ড পরিবর্তন',
     fields: [
-      { label: 'বর্তমান পাসওয়ার্ড', type: 'password' },
-      { label: 'নতুন পাসওয়ার্ড', type: 'password' },
-      { label: 'আবার লিখুন', type: 'password' },
+      { label: 'বর্তমান পাসওয়ার্ড', type: 'password', autocomplete: false },
+      { label: 'নতুন পাসওয়ার্ড', type: 'password', autocomplete: false },
+      { label: 'আবার লিখুন', type: 'password', autocomplete: false },
     ],
     ok: 'পরিবর্তন করুন',
   });
@@ -418,6 +404,86 @@ async function changePw() {
     toast('পাসওয়ার্ড পরিবর্তিত হয়েছে ✓');
   } catch (e) { dbFail(e); }
 }
+
+/* ============================================================
+   PROFILE MODAL — view + edit
+   ============================================================ */
+function openProfile() {
+  if (!SB.profile) return;
+  const p = SB.profile;
+  $('profileFullName').value = p.full_name || '';
+  $('profileLoginId').value = SB.profile.login_id || '—';
+  $('profileEmail').value = SB.profile.email || '';
+  $('profileRole').value = ROLE_BN[p.role] || p.role || '—';
+  $('profileOv').hidden = false;
+  setTimeout(() => $('profileFullName').focus(), 50);
+}
+function closeProfile() {
+  $('profileOv').hidden = true;
+}
+async function saveProfile() {
+  const full_name = $('profileFullName').value.trim();
+  const email = $('profileEmail').value.trim();
+
+  if (!full_name) return toast('পূর্ণ নাম খালি রাখা যাবে না', true);
+  if (!email) return toast('ইমেইল খালি রাখা যাবে না', true);
+  if (!email.includes('@')) return toast('সঠিক ইমেইল দিন', true);
+
+  const btn = $('profileSave'), lab = btn.textContent;
+  btn.disabled = true; btn.textContent = 'সংরক্ষণ হচ্ছে…';
+
+  try {
+    await SB.rpc('user_update_self', { p_full_name: full_name, p_email: email });
+    // SB.profile update
+    SB.profile.full_name = full_name;
+    SB.profile.email = email;
+    // session update (user object)
+    if (SB.sess && SB.sess.user) SB.sess.user.email = email;
+    // header update
+    $('whoName').textContent = full_name;
+    toast('প্রোফাইল হালনাগাদ হয়েছে ✓');
+    closeProfile();
+  } catch (e) {
+    toast(e.message || 'সংরক্ষণ ব্যর্থ', true);
+  } finally {
+    btn.disabled = false; btn.textContent = lab;
+  }
+}
+
+/* ============================================================
+   GEAR MENU — profile/password
+   ============================================================ */
+(function setupGearMenu() {
+  const btn = $('gearBtn'), panel = $('gearPanel');
+  if (!btn || !panel) return;
+
+  function close() { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  function open() { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+
+  btn.onclick = e => { e.stopPropagation(); panel.hidden ? open() : close(); };
+
+  document.addEventListener('click', e => {
+    if (!panel.hidden && !panel.contains(e.target) && e.target !== btn) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !panel.hidden) close();
+  });
+
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) return;
+    close();
+    const act = b.dataset.act;
+    if (act === 'profile') openProfile();
+    else if (act === 'password') changePw();
+  });
+})();
+
+/* Profile modal listeners */
+const profileCancelBtn = $('profileCancel'); if (profileCancelBtn) profileCancelBtn.onclick = closeProfile;
+const profileSaveBtn = $('profileSave'); if (profileSaveBtn) profileSaveBtn.onclick = saveProfile;
+const profileOvEl = $('profileOv');
+if (profileOvEl) profileOvEl.addEventListener('click', e => { if (e.target.id === 'profileOv') closeProfile(); });
 
 async function adminAct(k) {
   if (k === 'pw') return changePw();
@@ -517,16 +583,29 @@ function showLogin(msg, err) {
 }
 function hideLogin() { const lo = $('loginOv'); if (lo) lo.hidden = true; }
 
+/* ===== Role apply — সব ফ্ল্যাশ ফিক্স ===== */
 function applyRole() {
   if (!SB.profile) return;
   const r = SB.profile.role;
+
+  // HTML root class সরান (flash fix)
+  document.documentElement.classList.remove('no-role');
+
+  // Body role class
   document.body.classList.remove('r-admin', 'r-accountant', 'r-viewer');
   document.body.classList.add('r-' + r);
+
+  // Header
   const wn = $('whoName'); if (wn) wn.textContent = SB.profile.full_name;
   const wb = $('whobar'); if (wb) wb.hidden = false;
+
+  // Admin menu
   const ib = $('impBtn'); if (ib) ib.hidden = !(r === 'admin' && DB.legacyCount() > 0);
   const am = $('adminMenu'); if (am) am.hidden = r !== 'admin';
   const im = $('impMenuItem'); if (im) im.hidden = !(r === 'admin' && DB.legacyCount() > 0);
+
+  // Viewer flash fix — nav-এর wr-only hide করা হয় CSS দিয়ে
+  // তাছাড়া nav-এ class দেওয়ার দরকার নেই
 }
 
 async function startApp() {
@@ -542,7 +621,7 @@ async function bootApp() {
 
   if (!SB.configured()) {
     await splashPromise;
-    showLogin('Supabase এখনও যুক্ত করা হয়নি: js/supabase-config.js ফাইলে Project URL ও Publishable key বসান।', true);
+    showLogin('সিস্টেম এখনও প্রস্তুত নয়। অ্যাডমিনের সাথে যোগাযোগ করুন।', true);
     return;
   }
 
@@ -597,8 +676,6 @@ if (loginFormEl) loginFormEl.addEventListener('submit', async e => {
 /* ===== Header buttons ===== */
 const btnOutEl = $('btnOut');
 if (btnOutEl) btnOutEl.onclick = async () => { await SB.logout(); location.reload(); };
-const btnPwEl = $('btnPw');
-if (btnPwEl) btnPwEl.onclick = changePw;
 
 /* ===== Admin Menu ===== */
 (function setupAdminMenu() {
