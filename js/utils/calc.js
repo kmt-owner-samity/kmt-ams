@@ -150,4 +150,18 @@ export function ownerOf(flatNo) {
 /**
  * Service charge-এর জন্য মাসের তালিকা
  * (২ মাস অগ্রিম + current + ২১ মাস অতীত)
- *
+ * @param {Array} extra - extra months to include
+ * @returns {Array<string>} sorted desc
+ */
+export function monthList(extra = []) {
+  const d = new Date();
+  const out = [];
+  for (let k = 2; k >= -21; k--) {
+    const x = new Date(d.getFullYear(), d.getMonth() + k, 1);
+    out.push(x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'));
+  }
+  extra.forEach(e => {
+    if (e && !out.includes(e)) out.push(e);
+  });
+  return out.sort().reverse();
+}
