@@ -512,7 +512,7 @@ export function setupPaymentChips() {
   const accounts = Object.values(DB.accCode).sort((a, b) => a.id - b.id);
   
   box.innerHTML = accounts.map(a => {
-    const short = a.name.replace(' পিএলসি', '').replace(' টাকা', '');
+    const short = (a.name || a.code).replace(' পিএলসি', '').replace(' টাকা', '');
     const icon = a.kind === 'cash' ? ACCT_ICONS_CASH : ACCT_ICONS_BANK;
     return `
       <label class="chip">
