@@ -1054,3 +1054,158 @@ body:not(.r-admin) .adm-only{display:none!important}
   max-width: 220px;
   min-width: 140px;
 }
+
+/* =====================================================================
+   Phase 3 — Header enhancements, Gear menu, Profile modal
+   ===================================================================== */
+
+/* ============ USER CHIP (Header) ============ */
+.whobar{
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.user-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 99px;
+  padding: 4px 12px 4px 4px;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 500;
+  max-width: 220px;
+}
+.user-avatar{
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0f766e, #0d9488);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.user-name{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+/* ============ GEAR MENU (Header) ============ */
+.gear-menu{
+  position: relative;
+  display: inline-block;
+}
+.gear-panel{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(15,42,61,.18), 0 4px 8px rgba(15,42,61,.10);
+  padding: 6px;
+  z-index: 60;
+  animation: gearMenuIn .18s cubic-bezier(.4,0,.2,1);
+  transform-origin: top right;
+}
+@keyframes gearMenuIn{
+  from{ opacity: 0; transform: scale(.94) translateY(-6px); }
+  to  { opacity: 1; transform: none; }
+}
+.gear-panel button{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .15s;
+}
+.gear-panel button:hover{ background: #f1f5f9; }
+.gear-panel button:active{ background: #e2e8f0; }
+.gear-panel button svg{
+  flex-shrink: 0;
+  color: var(--mute);
+}
+
+/* ============ PROFILE MODAL ============ */
+#profileOv .box{
+  max-width: 440px;
+}
+#profileOv label{
+  display: block;
+  font-size: .82rem;
+  color: var(--mute);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+#profileOv input{
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: .95rem;
+  transition: border-color .2s, box-shadow .2s;
+}
+#profileOv input:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+#profileOv input:disabled,
+#profileOv input[readonly]{
+  background: #f1f5f9;
+  color: var(--mute);
+  cursor: not-allowed;
+}
+
+/* ============ VIEWER FLASH FIX ============ */
+/* wr-only কিছু এমনিতেই দেখাবে, তারপর body role class apply হলে লুকাবে */
+/* এই সিএসএস আগেই ছিল — তবুও নিশ্চিত করা: */
+body.r-viewer .wr-only{ display: none !important; }
+body.r-accountant .wr-only{ display: flex; }
+
+/* Initial state — body-তে role class না থাকলে wr-only দেখাবে না */
+body:not(.r-admin):not(.r-accountant) .wr-only{
+  display: none !important;
+}
+
+/* ============ ENGLISH-ONLY INPUT ============ */
+/* বাংলা টাইপ করার চেষ্টা করলে visual hint */
+input.english-only{
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: .3px;
+}
+input.english-only::placeholder{
+  font-family: 'Noto Sans Bengali', system-ui, sans-serif;
+  letter-spacing: normal;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 700px){
+  .user-name{ max-width: 80px; }
+  .whobar{ gap: 6px; }
+  .user-chip{ padding: 3px 8px 3px 3px; font-size: .8rem; }
+  .user-avatar{ width: 22px; height: 22px; }
+  .gear-panel{ min-width: 190px; }
+}
+
