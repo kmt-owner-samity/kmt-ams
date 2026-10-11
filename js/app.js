@@ -31,8 +31,14 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
   window.scrollTo(0, 0);
-  const mbar = $('mbar'); if (mbar) mbar.hidden = b.dataset.v === 'add';
-  const smBtn = $('smBtn'); if (smBtn) smBtn.hidden = b.dataset.v !== 'dash';
+  const view = b.dataset.v;
+  const mbar = $('mbar'); if (mbar) mbar.hidden = view === 'add';
+  const smBtn = $('smBtn'); if (smBtn) smBtn.hidden = view !== 'dash';
+  const am = $('adminMenu');
+  if (am) {
+    const isAdmin = SB.profile && SB.profile.role === 'admin';
+    am.hidden = !isAdmin || view !== 'dash';
+  }
 });
 
 /* আয়/ব্যয় টগল */
