@@ -1,31 +1,21 @@
-/* =====================================================================
-   user-manager.js — ইউজার ম্যানেজমেন্ট (Admin only)
-   কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
-   
-   ⚠️ শুধু admin ব্যবহার করতে পারবে (RLS + RPC enforce করে)
-   ===================================================================== */
+/* user-manager.js — ইউজার ম্যানেজমেন্ট (Admin only) */
 
 const ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
 
-/* ============ DOM Helpers ============ */
-const $ = id => document.getElementById(id);
-
-/* ============ Open Modal ============ */
 function openUserManager() {
-  const ov = $('userOv');
+  const ov = document.getElementById('userOv');
   if (!ov) return;
   ov.hidden = false;
   refreshUserList();
 }
 
 function closeUserManager() {
-  const ov = $('userOv');
+  const ov = document.getElementById('userOv');
   if (ov) ov.hidden = true;
 }
 
-/* ============ Load & Render List ============ */
 async function refreshUserList() {
-  const box = $('userList');
+  const box = document.getElementById('userList');
   if (!box) return;
 
   box.innerHTML = '<div class="empty">লোড হচ্ছে...</div>';
@@ -68,7 +58,6 @@ async function refreshUserList() {
   }
 }
 
-/* ============ Add User ============ */
 async function addUser() {
   const v = await ask({
     title: 'নতুন ইউজার তৈরি',
@@ -78,13 +67,12 @@ async function addUser() {
       { label: 'ইউজারনেম', ph: 'যেমন: hasan (ইংরেজি ছোট হাতের অক্ষর)' },
       { label: 'ইমেইল', ph: 'যেমন: hasan@kmt.local' },
       { label: 'পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)', type: 'password' },
-      { label: 'ভূমিকা', type: 'select', options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] },
+      { label: 'ভূমিকা', type: 'select', options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] }
     ],
-    ok: 'তৈরি করুন',
+    ok: 'তৈরি করুন'
   });
 
   if (!v) return;
-
   const [full_name, login_id, email, password, role] = v;
 
   if (!full_name || !login_id || !email || !password || !role) {
@@ -103,7 +91,6 @@ async function addUser() {
   }
 }
 
-/* ============ Edit User ============ */
 async function editUser(id) {
   const users = await SB.adminUserList();
   const u = users.find(x => x.id === id);
@@ -114,25 +101,13 @@ async function editUser(id) {
 
   const fields = [
     { label: 'পূর্ণ নাম', value: u.full_name },
-    {
-      label: 'ভূমিকা', type: 'select', value: u.role,
-      options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']],
-    },
+    { label: 'ভূমিকা', type: 'select', value: u.role, options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] }
   ];
-
   if (!isMe) {
-    fields.push({
-      label: 'সক্রিয়?', type: 'select', value: u.is_active ? 'true' : 'false',
-      options: [['true', 'সক্রিয়'], ['false', 'নিষ্ক্রিয়']],
-    });
+    fields.push({ label: 'সক্রিয়?', type: 'select', value: u.is_active ? 'true' : 'false', options: [['true', 'সক্রিয়'], ['false', 'নিষ্ক্রিয়']] });
   }
 
-  const v = await ask({
-    title: 'ইউজার সম্পাদনা',
-    fields,
-    ok: 'সংরক্ষণ',
-  });
-
+  const v = await ask({ title: 'ইউজার সম্পাদনা', fields, ok: 'সংরক্ষণ' });
   if (!v) return;
 
   const full_name = v[0];
@@ -148,24 +123,20 @@ async function editUser(id) {
   }
 }
 
-/* ============ Reset Password ============ */
 async function resetUserPw(id, name) {
   const v = await ask({
     title: 'পাসওয়ার্ড রিসেট',
     msg: `${name} এর জন্য নতুন পাসওয়ার্ড`,
     fields: [
       { label: 'নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)', type: 'password' },
-      { label: 'আবার লিখুন', type: 'password' },
+      { label: 'আবার লিখুন', type: 'password' }
     ],
-    ok: 'রিসেট',
+    ok: 'রিসেট'
   });
-
   if (!v) return;
-
   if (v[0].length < 6 || v[0] !== v[1]) {
     return toast('পাসওয়ার্ড কমপক্ষে ৬ অক্ষর ও দুইবার একই হতে হবে', true);
   }
-
   try {
     await SB.adminUserResetPassword(id, v[0]);
     toast('পাসওয়ার্ড রিসেট হয়েছে ✓');
@@ -174,20 +145,17 @@ async function resetUserPw(id, name) {
   }
 }
 
-/* ============ Toggle Active ============ */
 async function toggleUserActive(id, isActive) {
   const users = await SB.adminUserList();
   const u = users.find(x => x.id === id);
   if (!u) return;
 
   const action = isActive ? 'নিষ্ক্রিয়' : 'সক্রিয়';
-
   const v = await ask({
     title: `ইউজার ${action} করবেন?`,
     msg: `${u.full_name}${isActive ? ' আর লগইন করতে পারবেন না।' : ' আবার লগইন করতে পারবেন।'}`,
-    ok: action + ' করুন',
+    ok: action + ' করুন'
   });
-
   if (!v) return;
 
   try {
@@ -199,11 +167,10 @@ async function toggleUserActive(id, isActive) {
   }
 }
 
-/* ============ Setup Listeners ============ */
 function setupUserManager() {
-  const ov = $('userOv');
-  const xBtn = $('userOvX');
-  const addBtn = $('userAddBtn');
+  const ov = document.getElementById('userOv');
+  const xBtn = document.getElementById('userOvX');
+  const addBtn = document.getElementById('userAddBtn');
 
   if (xBtn) xBtn.onclick = closeUserManager;
   if (addBtn) addBtn.onclick = addUser;
@@ -215,7 +182,7 @@ function setupUserManager() {
   }
 }
 
-/* ============ Global Expose ============ */
+/* Global */
 window.openUserManager = openUserManager;
 window.closeUserManager = closeUserManager;
 window.refreshUserList = refreshUserList;
