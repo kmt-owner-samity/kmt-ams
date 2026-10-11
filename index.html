@@ -3,17 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f766e">
+<meta name="theme-color" content="#14304a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</title>
+<title>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি - অ্যাকাউন্টিং ম্যানেজমেন্ট সিস্টেম</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/layout.css">
-<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -42,324 +39,246 @@
 </div>
 
 <!-- ===================================================================
-     LOGIN SCREEN
+     HEADER
      =================================================================== -->
-<div class="login-overlay" id="loginOv" hidden>
-  <form class="login-card" id="loginForm" autocomplete="off">
-    <div class="login-head">
-      <div class="login-logo">
-        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14 54V22L32 10L50 22V54" stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-          <path d="M14 54H50" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-          <rect x="22" y="30" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="36" y="30" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="22" y="42" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="36" y="42" width="6" height="6" rx="1" fill="#fff"/>
-        </svg>
-      </div>
-      <h1>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</h1>
-      <p>অ্যাকাউন্টিং ম্যানেজমেন্ট সিস্টেম</p>
-    </div>
-
-    <div class="field">
-      <label for="loginUser">ইউজারনেম</label>
-      <input type="text" id="loginUser" autocomplete="username" required
-             placeholder="ইউজারনেম লিখুন" autocapitalize="off" spellcheck="false">
-    </div>
-
-    <div class="field">
-      <label for="loginPw">পাসওয়ার্ড</label>
-      <div class="input-wrap">
-        <input type="password" id="loginPw" autocomplete="current-password"
-               required placeholder="••••••••">
-        <button type="button" class="toggle-pw" id="togglePw" aria-label="পাসওয়ার্ড দেখান">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none"
-               stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <p class="login-msg" id="loginMsg"></p>
-
-    <button type="submit" class="btn-login" id="loginBtn">
-      <span class="spinner"></span>
-      <span class="btn-text">লগইন করুন</span>
+<header>
+  <h1>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি <small>অ্যাকাউন্টিং ম্যানেজমেন্ট সিস্টেম</small></h1>
+  <div id="whobar" class="whobar" hidden>
+    <span id="whoName"></span>
+    <button type="button" id="btnPw" class="icon-btn" title="পাসওয়ার্ড পরিবর্তন" aria-label="পাসওয়ার্ড পরিবর্তন">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="11" width="16" height="10" rx="2"/>
+        <path d="M8 11V7a4 4 0 1 1 8 0v4"/>
+      </svg>
     </button>
+    <button type="button" id="btnOut" class="icon-btn" title="লগআউট" aria-label="লগআউট">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ===================================================================
+     NAV TABS
+     =================================================================== -->
+<nav>
+  <button class="on" data-v="dash">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+    ড্যাশবোর্ড
+  </button>
+  <button class="wr-only" data-v="add">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m8-8H4"/></svg>
+    আয়/ব্যয় এন্ট্রি
+  </button>
+  <button data-v="list">
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h6"/></svg>
+    লেনদেন
+  </button>
+</nav>
+
+<main>
+
+<!-- ============ MONTH BAR ============ -->
+<div class="card mbar" id="mbar">
+  <label for="month">মাস নির্বাচন</label>
+  <div class="row">
+    <input type="month" id="month">
+    <div class="admin-menu" id="adminMenu" hidden>
+      <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-haspopup="true" aria-expanded="false">
+        ⚙️ অ্যাডমিন
+      </button>
+      <div class="admin-menu-panel" id="adminMenuPanel" hidden>
+        <button type="button" data-act="open">💰 জের সম্পাদনা</button>
+        <button type="button" data-act="transfer">🔄 ট্রান্সফার জের</button>
+        <button type="button" data-act="sc">📊 সার্ভিস চার্জ সেটআপ</button>
+        <button type="button" data-act="users">👥 ইউজার ম্যানেজমেন্ট</button>
+        <button type="button" data-act="import" id="impMenuItem" hidden>📥 পুরনো ডাটা আনুন</button>
+      </div>
+    </div>
+    <button class="btn" id="smBtn" style="--acc:var(--ink)">সামারি শীট</button>
+  </div>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="view on" id="v-dash">
+  <div class="eq" id="eq"></div>
+  <div class="sec">বর্তমান জের</div>
+  <div class="acc3" id="acc3"></div>
+  <div class="cols">
+    <div class="card">
+      <h2 class="in-c">আয়ের বিবরণ</h2>
+      <div id="bd-in"></div>
+    </div>
+    <div class="card">
+      <h2 class="out-c">ব্যয়ের বিবরণ</h2>
+      <div id="bd-out"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ENTRY FORM ============ -->
+<section class="view" id="v-add">
+  <div class="seg" role="tablist">
+    <button class="on" data-t="income">আয়</button>
+    <button data-t="expense">ব্যয়</button>
+  </div>
+  <form class="card" id="f" onsubmit="return false">
+    <h2 id="ft">নতুন আয় যোগ করুন</h2>
+    <div class="grid">
+      <div class="full">
+        <label for="d">তারিখ (দিন/মাস/বছর)</label>
+        <div class="dwrap">
+          <input id="d" inputmode="numeric" placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required>
+          <span class="cal" id="calBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          </span>
+          <input type="date" id="dpick" class="dpk" aria-label="ক্যালেন্ডার থেকে বাছুন">
+        </div>
+      </div>
+      <div><label for="g">প্রধান খাত</label><select id="g" required></select></div>
+      <div><label for="s">উপ খাত</label><select id="s" required></select></div>
+      <div id="flatBox" class="full" hidden>
+        <label for="fl">ফ্ল্যাট</label>
+        <select id="fl"></select>
+        <div id="owner" class="owner"></div>
+      </div>
+      <div id="smBox" class="full" hidden>
+        <label>কোন মাসের সার্ভিস চার্জ <small style="font-weight:400">(একাধিক বাছাই করা যাবে)</small></label>
+        <div class="slider">
+          <button type="button" class="arr" id="smL" aria-label="আগের দিকে">←</button>
+          <div class="track" id="smTrack"></div>
+          <button type="button" class="arr" id="smR" aria-label="পরের দিকে">→</button>
+        </div>
+      </div>
+      <div class="full"><label for="a">টাকার পরিমাণ (৳)</label><input type="number" id="a" min="1" step="any" inputmode="decimal" required></div>
+      <div class="full"><label id="chipL">পেমেন্ট মাধ্যম</label><div class="chips" id="chips" role="radiogroup"></div></div>
+      <div class="full"><label for="n">বিবরণ / ভাউচার নং (ঐচ্ছিক)</label><input id="n" autocomplete="off"></div>
+      <div class="full btnrow">
+        <button class="btn" id="save">আয় সংরক্ষণ করুন</button>
+        <button type="button" class="btn ghost" id="cancelEdit">বাতিল করুন</button>
+      </div>
+    </div>
   </form>
-</div>
+</section>
+
+<!-- ============ TRANSACTIONS ============ -->
+<section class="view" id="v-list">
+  <div class="card noprint"><div class="repgrid" id="repBar"></div></div>
+  <div class="card">
+    <h2>লেনদেনের বিস্তারিত</h2>
+    <div class="wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>তারিখ</th>
+            <th>ধরণ</th>
+            <th>খাত / বিবরণ</th>
+            <th class="n">পরিমাণ</th>
+            <th class="n" style="text-align:center">অ্যাকশন</th>
+          </tr>
+        </thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+</main>
 
 <!-- ===================================================================
-     APP SHELL
+     OVERLAYS
      =================================================================== -->
-<div class="app" id="appShell" hidden>
 
-  <!-- Header -->
-  <header class="app-header">
-    <div class="brand">
-      <div class="brand-logo">
-        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14 54V22L32 10L50 22V54" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
-          <path d="M14 54H50" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>
-          <rect x="22" y="30" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="36" y="30" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="22" y="42" width="6" height="6" rx="1" fill="#fff"/>
-          <rect x="36" y="42" width="6" height="6" rx="1" fill="#fff"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>কাজী মোশাররফ টাওয়ার</h1>
-        <small>ভবন মালিক সমিতি</small>
-      </div>
-    </div>
-    <div class="user-bar" id="userBar">
-      <span id="userName">—</span>
-      <button type="button" id="btnChangePw" class="icon-btn" title="পাসওয়ার্ড পরিবর্তন">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="11" width="16" height="10" rx="2"/>
-          <path d="M8 11V7a4 4 0 1 1 8 0v4"/>
-        </svg>
-      </button>
-      <button type="button" id="btnLogout" class="icon-btn" title="লগআউট">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- Main -->
-  <main class="app-main">
-
-    <!-- Month bar (only on dashboard) -->
-    <div class="month-bar" id="monthBar">
-      <label for="monthInput">মাস নির্বাচন</label>
-      <div class="bar-actions">
-        <input type="month" id="monthInput">
-        <button type="button" class="btn dark" id="btnSummary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          সামারি শীট
-        </button>
-        <div class="admin-menu" id="adminMenu" hidden>
-          <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-haspopup="true" aria-expanded="false">
-            ⚙️ অ্যাডমিন
-          </button>
-          <div class="admin-menu-panel" id="adminMenuPanel" hidden>
-            <button type="button" data-act="open">💰 জের সম্পাদনা</button>
-            <button type="button" data-act="transfer">🔄 ট্রান্সফার জের</button>
-            <button type="button" data-act="sc">📊 সার্ভিস চার্জ সেটআপ</button>
-            <button type="button" data-act="users">👥 ইউজার ম্যানেজমেন্ট</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nav tabs -->
-    <nav class="nav-tabs">
-      <button class="on" data-v="dash">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="3" width="7" height="7" rx="1"/>
-          <rect x="14" y="14" width="7" height="7" rx="1"/>
-          <rect x="3" y="14" width="7" height="7" rx="1"/>
-        </svg>
-        ড্যাশবোর্ড
-      </button>
-      <button data-v="add" class="wr-only">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        আয়/ব্যয় এন্ট্রি
-      </button>
-      <button data-v="list">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
-          <rect x="9" y="3" width="6" height="4" rx="1"/>
-          <line x1="9" y1="12" x2="15" y2="12"/>
-          <line x1="9" y1="16" x2="15" y2="16"/>
-        </svg>
-        লেনদেন
-      </button>
-    </nav>
-
-    <!-- ============ VIEW: DASHBOARD ============ -->
-    <section class="view on" id="v-dash">
-
-      <!-- 4 Summary Cards -->
-      <div class="summary-grid" id="summaryGrid"></div>
-
-      <!-- 3 Account Cards -->
-      <div class="accounts-grid" id="accountsGrid"></div>
-
-      <!-- Breakdown -->
-      <div class="breakdown-grid">
-        <div class="card">
-          <h2 class="in">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/>
-            </svg>
-            আয়ের বিবরণ
-          </h2>
-          <div id="bdIncome"></div>
-        </div>
-        <div class="card">
-          <h2 class="out">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20V8m0 0l-5 5m5-5l5 5M5 4h14"/>
-            </svg>
-            ব্যয়ের বিবরণ
-          </h2>
-          <div id="bdExpense"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ VIEW: ENTRY (Add) ============ -->
-    <section class="view" id="v-add">
-      <div class="card">
-        <!-- Income/Expense Toggle -->
-        <div class="seg-toggle" id="segToggle">
-          <button type="button" class="on" data-t="income">
-            <span class="em">📈</span> আয়
-          </button>
-          <button type="button" data-t="expense">
-            <span class="em">📉</span> ব্যয়
-          </button>
-        </div>
-
-        <form id="entryForm" onsubmit="return false">
-          <h2 id="entryTitle" style="margin-bottom:16px">নতুন আয় যোগ করুন</h2>
-
-          <div class="form-grid">
-
-            <!-- Date -->
-            <div class="full">
-              <label for="entryDate">তারিখ (দিন/মাস/বছর)</label>
-              <div class="date-wrap">
-                <input type="text" id="entryDate" class="dtext" inputmode="numeric"
-                       placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required>
-                <span class="cal">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="5" width="18" height="16" rx="2"/>
-                    <path d="M3 10h18M8 3v4M16 3v4"/>
-                  </svg>
-                </span>
-                <input type="date" id="entryDatePicker" class="dpk" aria-label="ক্যালেন্ডার">
-              </div>
-            </div>
-
-            <!-- Category -->
-            <div>
-              <label for="entryGroup">প্রধান খাত</label>
-              <select id="entryGroup" required></select>
-            </div>
-            <div>
-              <label for="entrySub">উপ খাত</label>
-              <select id="entrySub" required></select>
-            </div>
-
-            <!-- Flat + Owner -->
-            <div class="full" id="flatBox" hidden>
-              <label for="entryFlat">ফ্ল্যাট</label>
-              <select id="entryFlat"></select>
-              <div class="owner-display" id="ownerDisplay"></div>
-            </div>
-
-            <!-- Service charge months -->
-            <div class="full" id="scBox" hidden>
-              <label>কোন মাসের সার্ভিস চার্জ <small style="font-weight:400">(একাধিক বাছাই করা যাবে)</small></label>
-              <div class="month-slider">
-                <button type="button" class="arr" id="smPrev" aria-label="আগের দিকে">←</button>
-                <div class="month-track" id="smTrack"></div>
-                <button type="button" class="arr" id="smNext" aria-label="পরের দিকে">→</button>
-              </div>
-            </div>
-
-            <!-- Amount -->
-            <div class="full">
-              <label for="entryAmount">টাকার পরিমাণ (৳)</label>
-              <input type="number" id="entryAmount" min="1" step="any" inputmode="decimal" required>
-            </div>
-
-            <!-- Payment chips -->
-            <div class="full">
-              <label id="chipLabel">পেমেন্ট মাধ্যম</label>
-              <div class="chips" id="entryChips" role="radiogroup"></div>
-            </div>
-
-            <!-- Note -->
-            <div class="full">
-              <label for="entryNote">বিবরণ / ভাউচার নং (ঐচ্ছিক)</label>
-              <input type="text" id="entryNote" autocomplete="off">
-            </div>
-
-            <!-- Buttons -->
-            <div class="full" style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
-              <button type="button" class="btn" id="entrySave">সংরক্ষণ করুন</button>
-              <button type="button" class="btn ghost" id="entryCancel">বাতিল</button>
-            </div>
-
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <!-- ============ VIEW: TRANSACTIONS ============ -->
-    <section class="view" id="v-list">
-      <div class="card">
-        <h2>লেনদেনের বিস্তারিত</h2>
-        <div class="txn-list">
-          <table class="txn-table">
-            <thead>
-              <tr>
-                <th>তারিখ</th>
-                <th>ধরণ</th>
-                <th>খাত / বিবরণ</th>
-                <th class="n">পরিমাণ</th>
-                <th class="n" style="text-align:center">অ্যাকশন</th>
-              </tr>
-            </thead>
-            <tbody id="txnBody"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<!-- ===================================================================
-     MODAL DIALOG
-     =================================================================== -->
-<div class="modal-overlay" id="modalOv" hidden>
-  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <h2 id="modalTitle"></h2>
-    <p id="modalMsg" hidden></p>
-    <div id="modalFields"></div>
-    <div class="modal-actions">
-      <button type="button" class="btn ghost" id="modalCancel">বাতিল</button>
-      <button type="button" class="btn" id="modalOk">ঠিক আছে</button>
+<!-- Modal Dialog -->
+<div class="ov" id="dlg" hidden>
+  <div class="card box" role="dialog" aria-modal="true" aria-labelledby="dt">
+    <h2 id="dt"></h2>
+    <p id="dm" style="margin:0 0 12px;color:var(--mute)"></p>
+    <div id="df"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" id="dno">বাতিল</button>
+      <button class="btn" id="dok">ঠিক আছে</button>
     </div>
   </div>
 </div>
 
-<!-- ===================================================================
-     TOAST
-     =================================================================== -->
-<div class="toast" id="toast" role="status"></div>
+<!-- Invoice -->
+<div class="ov" id="invOv" hidden>
+  <div class="invbox">
+    <div class="row ibar">
+      <button class="btn ghost" id="invX">বন্ধ করুন</button>
+      <button class="btn ghost" id="invS">শেয়ার করুন</button>
+      <button class="btn" id="invD" style="--acc:var(--ink)">ডাউনলোড করুন</button>
+    </div>
+    <div id="invFit"><div id="invBody"></div></div>
+  </div>
+</div>
+
+<!-- Service Charge Setup -->
+<div class="ov" id="scOv" hidden>
+  <div class="invbox" style="max-width:520px;width:100%">
+    <h2 style="margin:0">সার্ভিস চার্জ সেটআপ</h2>
+    <p style="margin:2px 0 12px;color:var(--mute);font-size:.9rem">প্রতি ফ্ল্যাটের মাসিক সার্ভিস চার্জ। কোনো ফ্ল্যাটের ঘর ফাঁকা রাখলে ডিফল্ট অঙ্ক ধরা হবে।</p>
+    <label for="scDef">সবার জন্য ডিফল্ট মাসিক চার্জ (৳)</label>
+    <input type="number" id="scDef" min="0" step="any" inputmode="decimal">
+    <div id="scRows" class="scrows"></div>
+    <div id="scTot" style="font-weight:700;margin-bottom:10px"></div>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" id="scX">বাতিল</button>
+      <button class="btn" id="scS" style="--acc:var(--ink)">সংরক্ষণ</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Management -->
+<div class="ov" id="userOv" hidden>
+  <div class="invbox" style="max-width:640px;width:100%">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <h2 style="margin:0">👥 ইউজার ম্যানেজমেন্ট</h2>
+      <button class="btn ghost" id="userOvX" type="button">বন্ধ করুন</button>
+    </div>
+    <button class="btn" id="userAddBtn" type="button" style="--acc:var(--ink);margin-bottom:14px">➕ নতুন ইউজার তৈরি করুন</button>
+    <div id="userList">
+      <div class="empty">লোড হচ্ছে...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Login -->
+<div class="ov login" id="loginOv">
+  <form class="card box" id="loginForm">
+    <h2 style="text-align:center;margin:0">কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</h2>
+    <p class="lsub">অ্যাকাউন্টিং ম্যানেজমেন্ট সিস্টেম</p>
+    <label for="lem">ইউজারনেম</label>
+    <input id="lem" type="text" autocomplete="username" required style="margin-bottom:10px" autocapitalize="off" spellcheck="false" placeholder="ইউজারনেম লিখুন">
+    <label for="lpw">পাসওয়ার্ড</label>
+    <input id="lpw" type="password" autocomplete="current-password" required placeholder="••••••••">
+    <p id="loginMsg"></p>
+    <button class="btn" id="loginBtn" type="submit" style="width:100%;--acc:var(--ink)">লগইন</button>
+  </form>
+</div>
+
+<!-- PDF Capture -->
+<div id="cap" aria-hidden="true"></div>
+
+<!-- Toast -->
+<div id="toast" role="status"></div>
 
 <!-- ===================================================================
      SCRIPTS
      =================================================================== -->
-<script type="module" src="js/app.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="js/config.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/documents.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/splash.js"></script>
+<script src="js/user-manager.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
