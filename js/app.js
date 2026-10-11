@@ -438,4 +438,174 @@ async function doTransfer() {
     else if (r[0] === r[1]) err = 'দুটি হিসাব এক হতে পারবে না';
     else if (!iso) err = 'সঠিক তারিখ দিন';
     else if (!(+r[3] > 0)) err = 'সঠিক টাকার পরিমাণ দিন';
-    if (err) { toast(err);
+    if (err) { toast(err); continue; }
+    try {
+      await DB.add({ type: 'transfer', date: iso, amount: +r[3], note: r[4].trim(), group: 'ট্রান্সফার', item: AN(r[0]) + ' → ' + AN(r[1]), from: r[0], to: r[1], acct: r[0] });
+    } catch (e) { dbFail(e); continue; }
+    toast('ট্রান্সফার সংরক্ষিত ✓');
+    render();
+    return;
+  }
+}
+
+/* CSV রিপোর্ট */
+function csv() {
+  const c = calc(), [y, mm] = c.m.split('-'), q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const L = [[`কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি - ${M[+mm - 1]} ${y}`], ['পূর্বের জের', c.pb], ['মোট আয়', c.I], ['মোট ব্যয়', c.O], ['বর্তমান জের', c.cb], [], ['তারিখ', 'ধরন', 'খাত', 'উপখাত', 'ফ্ল্যাট', 'বিবরণ', 'টাকা']];
+  [...c.cur].sort((a, b) => a.date.localeCompare(b.date)).forEach(t => L.push([t.date, t.type === 'income' ? 'আয়' : 'ব্যয়', t.group, t.item, t.flat, t.note, t.amount]));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\ufeff' + L.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+  a.download = `hisab-${c.m}.csv`;
+  a.click();
+}
+
+/* শুরু */
+const now = new Date(), z = n => String(n).padStart(2, '0');
+const Y = now.getFullYear();
+function setMonth(v) { $('month').value = v; }
+$('month').onchange = render;
+setMonth(`${Y}-${z(now.getMonth() + 1)}`);
+setDateISO(`${now.getFullYear()}-${z(now.getMonth() + 1)}-${z(now.getDate())}`);
+$('chips').innerHTML = ACCTS.map(a => `<label class="chip"><input type="radio" name="acct" value="${a.k}" required><span>${svg(a.d, 22)}${a.s}${a.br ? `<small>${a.br}</small>` : ''}</span></label>`).join('');
+initReports();
+setType();
+
+/* ===== লগইন ও চালু করা ===== */
+function showLogin(msg, err) {
+  $('loginOv').hidden = false;
+  $('loginMsg').textContent = msg || '';
+  $('loginMsg').className = err ? 'lerr' : '';
+  $('lpw').value = '';
+}
+function hideLogin() { $('loginOv').hidden = true; }
+
+function applyRole() {
+  const r = SB.profile.role;
+  document.body.classList.remove('r-admin', 'r-accountant', 'r-viewer');
+  document.body.classList.add('r-' + r);
+  $('whoName').textContent = SB.profile.full_name;
+  $('whobar').hidden = false;
+  $('impBtn').hidden = !(r === 'admin' && DB.legacyCount() > 0);
+  $('adminMenu').hidden = r !== 'admin';
+}
+
+async function startApp() {
+  hideLogin();
+  try { await DB.init(); }
+  catch (e) { showLogin(e.message, true); return; }
+  applyRole();
+  render();
+}
+
+async function bootApp() {
+  const splashPromise = window.runSplash ? window.runSplash() : Promise.resolve();
+
+  if (!SB.configured()) {
+    await splashPromise;
+    showLogin('Supabase এখনও যুক্ত করা হয়নি: js/supabase-config.js ফাইলে Project URL ও Publishable key বসান।', true);
+    return;
+  }
+
+  try {
+    const restored = await SB.restore();
+    await splashPromise;
+    if (restored) await startApp();
+    else showLogin();
+  } catch (e) {
+    await splashPromise;
+    showLogin(e.message, true);
+  }
+}
+
+/* ===== লগইন ফর্ম (username দিয়ে) ===== */
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const b = $('loginBtn');
+  const username = $('lem').value.trim();
+  const password = $('lpw').value;
+
+  if (!username || !password) {
+    showLogin('ইউজারনেম ও পাসওয়ার্ড দুটোই দিন', true);
+    return;
+  }
+
+  b.disabled = true;
+  b.textContent = 'লগইন হচ্ছে…';
+
+  try {
+    await SB.loginByUsername(username, password);
+    try { localStorage.setItem('kmt_last_user', username); } catch (e) {}
+    b.disabled = false;
+    b.textContent = 'লগইন';
+    await startApp();
+  } catch (err) {
+    showLogin(err.message, true);
+    b.disabled = false;
+    b.textContent = 'লগইন';
+  }
+});
+
+/* Last username restore */
+(function () {
+  try {
+    const saved = localStorage.getItem('kmt_last_user');
+    if (saved) $('lem').value = saved;
+  } catch (e) {}
+})();
+
+/* ===== Header buttons ===== */
+$('btnOut').onclick = async () => { await SB.logout(); location.reload(); };
+$('btnPw').onclick = changePw;
+
+/* ===== Admin Menu ===== */
+(function setupAdminMenu() {
+  const btn = $('adminMenuBtn'), panel = $('adminMenuPanel');
+  if (!btn || !panel) return;
+
+  function close() { panel.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
+  function open() { panel.hidden = false; btn.setAttribute('aria-expanded', 'true'); }
+
+  btn.onclick = e => { e.stopPropagation(); panel.hidden ? open() : close(); };
+
+  document.addEventListener('click', e => {
+    if (!panel.hidden && !panel.contains(e.target) && e.target !== btn) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !panel.hidden) close();
+  });
+
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) return;
+    close();
+    adminAct(b.dataset.act);
+  });
+})();
+
+/* ===== User Manager Setup ===== */
+if (window.setupUserManager) window.setupUserManager();
+
+/* ===== Legacy import ===== */
+async function importLocal() {
+  const n = DB.legacyCount();
+  const v = await ask({
+    title: 'পুরনো ডাটা আনবেন?',
+    msg: 'এই ব্রাউজারে ' + bd(n) + 'টি লেনদেন পাওয়া গেছে। এগুলো (প্রারম্ভিক জের ও সার্ভিস চার্জ সেটআপসহ) যোগ হবে। শুধু একবার চালান, নইলে ডাটা দ্বিগুণ হবে।',
+    ok: 'আনুন',
+  });
+  if (!v) return;
+  try {
+    toast('ডাটা আনা হচ্ছে… অপেক্ষা করুন');
+    const r = await DB.importLegacy();
+    render();
+    if (r.fail.length) {
+      await ask({ title: bd(r.ok) + 'টি এসেছে, ' + bd(r.fail.length) + 'টি আসেনি', msg: r.fail.slice(0, 6).join(' | '), ok: 'ঠিক আছে' });
+    } else {
+      const c = await ask({ title: 'সব ডাটা এসেছে ✓', msg: 'ব্রাউজারের পুরনো ডাটা মুছে ফেলবেন?', ok: 'মুছুন' });
+      if (c) { DB.clearLegacy(); applyRole(); }
+    }
+  } catch (e) { dbFail(e); }
+}
+
+/* চালু */
+bootApp();
