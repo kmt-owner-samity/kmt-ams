@@ -1,0 +1,23 @@
+# ===== Supabase (sensitive) =====
+js/supabase-config.js
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Editor =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Node (future) =====
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# ===== Temp =====
+*.tmp
+*.log
+.cache/
