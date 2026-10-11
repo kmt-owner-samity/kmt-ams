@@ -51,7 +51,7 @@ async function refreshUserList() {
     box.innerHTML = users.map(u => {
       const isMe = u.id === me;
       const roleCls = u.is_active ? u.role : 'inactive';
-      const roleLabel = u.is_active ? (ROLE_BN[u.role] || u.role) : 'নিষ্ক্রিয়';
+      const roleLabel = u.is_active ? (UM_ROLE_BN[u.role] || u.role) : 'নিষ্ক্রিয়';
 
       return `
         <div class="user-item">
