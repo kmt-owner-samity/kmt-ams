@@ -1,19 +1,38 @@
-/* user-manager.js — ইউজার ম্যানেজমেন্ট (Admin only) */
+/* =====================================================================
+   user-manager.js — ইউজার ম্যানেজমেন্ট (Admin only)
+   কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
+   ===================================================================== */
 
 const ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
 
+/* ===== English-only filter ===== */
+function englishOnly(input) {
+  if (!input) return;
+  input.setAttribute('inputmode', 'latin');
+  input.classList.add('english-only');
+  input.addEventListener('input', () => {
+    const cleaned = input.value.replace(/[^A-Za-z0-9._\-@]/g, '');
+    if (cleaned !== input.value) {
+      const pos = input.selectionStart;
+      input.value = cleaned;
+      try { input.setSelectionRange(pos - 1, pos - 1); } catch (e) {}
+    }
+  });
+}
+
+/* ===== Open / Close ===== */
 function openUserManager() {
   const ov = document.getElementById('userOv');
   if (!ov) return;
   ov.hidden = false;
   refreshUserList();
 }
-
 function closeUserManager() {
   const ov = document.getElementById('userOv');
   if (ov) ov.hidden = true;
 }
 
+/* ===== Refresh list ===== */
 async function refreshUserList() {
   const box = document.getElementById('userList');
   if (!box) return;
@@ -46,9 +65,10 @@ async function refreshUserList() {
             </div>
           </div>
           <div class="user-actions">
-            <button type="button" onclick="editUser('${u.id}')">✏️ সম্পাদনা</button>
-            <button type="button" onclick="resetUserPw('${u.id}','${esc(u.full_name)}')">🔑 পাসওয়ার্ড</button>
-            ${!isMe ? `<button type="button" class="danger" onclick="toggleUserActive('${u.id}', ${u.is_active})">${u.is_active ? '🚫 নিষ্ক্রিয়' : '✓ সক্রিয়'}</button>` : ''}
+            <button type="button" onclick="editUser('${u.id}')" title="সম্পাদনা">✏️ সম্পাদনা</button>
+            <button type="button" onclick="resetUserPw('${u.id}','${esc(u.full_name).replace(/'/g, "\\'")}')" title="পাসওয়ার্ড">🔑 পাসওয়ার্ড</button>
+            ${!isMe ? `<button type="button" onclick="toggleUserActive('${u.id}', ${u.is_active})">${u.is_active ? '🚫 নিষ্ক্রিয়' : '✓ সক্রিয়'}</button>` : ''}
+            ${!isMe ? `<button type="button" class="danger" onclick="deleteUser('${u.id}','${esc(u.full_name).replace(/'/g, "\\'")}')" title="মুছুন">🗑️ মুছুন</button>` : ''}
           </div>
         </div>
       `;
@@ -58,36 +78,36 @@ async function refreshUserList() {
   }
 }
 
+/* ===== Add user ===== */
 async function addUser() {
   const v = await ask({
     title: 'নতুন ইউজার তৈরি',
     msg: 'একটি নতুন ইউজার অ্যাকাউন্ট তৈরি হবে।',
     fields: [
       { label: 'পূর্ণ নাম', ph: 'যেমন: মোঃ আবুল হাসান' },
-      { label: 'ইউজারনেম', ph: 'যেমন: hasan' },
+      { label: 'ইউজারনেম (ইংরেজি)', ph: 'যেমন: hasan' },
       { label: 'ইমেইল (ঐচ্ছিক)', ph: 'খালি রাখলে অটো তৈরি হবে' },
       { label: 'পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)', type: 'password' },
       { label: 'ভূমিকা', type: 'select', options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] }
     ],
     ok: 'তৈরি করুন',
-    // ⚠️ validate callback — OK চাপলে চেক হবে, ভুল হলে dialog বন্ধ হবে না
     validate: (values) => {
-      const [full_name, login_id, , password] = values.map(s => (s || '').trim());
+      const [full_name, login_id, , password, role] = values.map(s => (s || '').trim());
       if (!full_name) return 'পূর্ণ নাম দিন';
       if (!login_id) return 'ইউজারনেম দিন';
+      if (!/^[a-z0-9._-]+$/i.test(login_id)) return 'ইউজারনেম শুধু ইংরেজি অক্ষর, সংখ্যা, . _ - দিয়ে';
       if (!password) return 'পাসওয়ার্ড দিন';
       if (password.length < 6) return 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর';
-      return null;  // সব ঠিক
+      if (!role) return 'ভূমিকা বাছাই করুন';
+      return null;
     }
   });
-
   if (!v) return;
 
   let [full_name, login_id, email, password, role] = v.map(s => (s || '').trim());
-  if (!role) role = 'viewer';
   if (!email) {
-    const safeLogin = login_id.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'user';
-    email = safeLogin + '@kmt.local';
+    const safe = login_id.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 30) || 'user';
+    email = safe + '@kmt.local';
   }
 
   try {
@@ -99,6 +119,7 @@ async function addUser() {
   }
 }
 
+/* ===== Edit user (username, email, full name, role, active) ===== */
 async function editUser(id) {
   const users = await SB.adminUserList();
   const u = users.find(x => x.id === id);
@@ -109,21 +130,52 @@ async function editUser(id) {
 
   const fields = [
     { label: 'পূর্ণ নাম', value: u.full_name },
-    { label: 'ভূমিকা', type: 'select', value: u.role, options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']] }
+    { label: 'ইউজারনেম (ইংরেজি)', value: u.login_id || '' },
+    { label: 'ইমেইল', value: u.email || '' },
+    {
+      label: 'ভূমিকা', type: 'select', value: u.role,
+      options: [['admin', 'অ্যাডমিন'], ['accountant', 'হিসাবরক্ষক'], ['viewer', 'দর্শক']]
+    }
   ];
   if (!isMe) {
-    fields.push({ label: 'সক্রিয়?', type: 'select', value: u.is_active ? 'true' : 'false', options: [['true', 'সক্রিয়'], ['false', 'নিষ্ক্রিয়']] });
+    fields.push({
+      label: 'সক্রিয়?', type: 'select', value: u.is_active ? 'true' : 'false',
+      options: [['true', 'সক্রিয়'], ['false', 'নিষ্ক্রিয়']]
+    });
   }
 
-  const v = await ask({ title: 'ইউজার সম্পাদনা', fields, ok: 'সংরক্ষণ' });
+  const v = await ask({
+    title: 'ইউজার সম্পাদনা',
+    fields,
+    ok: 'সংরক্ষণ',
+    validate: (values) => {
+      const [full_name, login_id, email, role] = values.map(s => (s || '').trim());
+      if (!full_name) return 'পূর্ণ নাম দিন';
+      if (!login_id) return 'ইউজারনেম দিন';
+      if (!/^[a-z0-9._-]+$/i.test(login_id)) return 'ইউজারনেম শুধু ইংরেজি অক্ষর, সংখ্যা, . _ - দিয়ে';
+      if (!email) return 'ইমেইল দিন';
+      if (!email.includes('@')) return 'সঠিক ইমেইল দিন';
+      if (!role) return 'ভূমিকা বাছাই করুন';
+      return null;
+    }
+  });
   if (!v) return;
 
-  const full_name = v[0];
-  const role = v[1];
-  const is_active = isMe ? true : (v[2] === 'true');
+  const full_name = v[0].trim();
+  const login_id = v[1].trim();
+  const email = v[2].trim();
+  const role = v[3];
+  const is_active = isMe ? true : (v[4] === 'true');
 
   try {
-    await SB.adminUserUpdate(id, full_name, role, is_active);
+    await SB.rpc('admin_user_update_full', {
+      p_id: id,
+      p_login_id: login_id,
+      p_email: email,
+      p_full_name: full_name,
+      p_role: role,
+      p_is_active: is_active
+    });
     toast('ইউজার হালনাগাদ হয়েছে ✓');
     refreshUserList();
   } catch (e) {
@@ -131,6 +183,7 @@ async function editUser(id) {
   }
 }
 
+/* ===== Reset password ===== */
 async function resetUserPw(id, name) {
   const v = await ask({
     title: 'পাসওয়ার্ড রিসেট',
@@ -153,6 +206,7 @@ async function resetUserPw(id, name) {
   }
 }
 
+/* ===== Toggle active ===== */
 async function toggleUserActive(id, isActive) {
   const users = await SB.adminUserList();
   const u = users.find(x => x.id === id);
@@ -167,7 +221,14 @@ async function toggleUserActive(id, isActive) {
   if (!v) return;
 
   try {
-    await SB.adminUserUpdate(id, u.full_name, u.role, !isActive);
+    await SB.rpc('admin_user_update_full', {
+      p_id: id,
+      p_login_id: u.login_id,
+      p_email: u.email,
+      p_full_name: u.full_name,
+      p_role: u.role,
+      p_is_active: !isActive
+    });
     toast(`ইউজার ${action} হয়েছে ✓`);
     refreshUserList();
   } catch (e) {
@@ -175,6 +236,37 @@ async function toggleUserActive(id, isActive) {
   }
 }
 
+/* ===== Delete user (permanent) ===== */
+async function deleteUser(id, name) {
+  const v = await ask({
+    title: '⚠️ ইউজার সম্পূর্ণ মুছবেন?',
+    msg: `${name} — এই ইউজারটি স্থায়ীভাবে মুছে যাবে। এই কাজ ফিরিয়ে আনা যাবে না।`,
+    ok: 'মুছে ফেলুন'
+  });
+  if (!v) return;
+
+  // দ্বিতীয়বার নিশ্চিতকরণ (extra safety)
+  const v2 = await ask({
+    title: '⚠️ নিশ্চিত করুন',
+    msg: 'সত্যিই কি এই ইউজারকে মুছে ফেলতে চান?',
+    fields: [{ label: 'নিশ্চিত করতে "হ্যাঁ" লিখুন', ph: 'হ্যাঁ' }],
+    ok: 'মুছে ফেলুন'
+  });
+  if (!v2) return;
+  if ((v2[0] || '').trim().toLowerCase() !== 'হ্যাঁ' && (v2[0] || '').trim().toLowerCase() !== 'hye' && (v2[0] || '').trim().toLowerCase() !== 'hyan') {
+    return toast('নিশ্চিতকরণ বাতিল', true);
+  }
+
+  try {
+    await SB.rpc('admin_user_delete', { p_id: id });
+    toast('ইউজার মুছে ফেলা হয়েছে ✓');
+    refreshUserList();
+  } catch (e) {
+    toast(e.message || 'মুছতে ব্যর্থ', true);
+  }
+}
+
+/* ===== Setup listeners ===== */
 function setupUserManager() {
   const ov = document.getElementById('userOv');
   const xBtn = document.getElementById('userOvX');
@@ -190,7 +282,7 @@ function setupUserManager() {
   }
 }
 
-/* Global */
+/* ===== Global expose ===== */
 window.openUserManager = openUserManager;
 window.closeUserManager = closeUserManager;
 window.refreshUserList = refreshUserList;
@@ -198,4 +290,5 @@ window.addUser = addUser;
 window.editUser = editUser;
 window.resetUserPw = resetUserPw;
 window.toggleUserActive = toggleUserActive;
+window.deleteUser = deleteUser;
 window.setupUserManager = setupUserManager;
