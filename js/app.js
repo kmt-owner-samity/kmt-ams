@@ -13,6 +13,7 @@ let type = 'income', all = [], open0 = { cash: 0, nbl: 0, pbl: 0 }, scCfg = { de
 
 function toast(m, err) {
   const t = $('toast');
+  if (!t) return;
   t.textContent = m;
   t.classList.toggle('err', !!err);
   t.classList.add('on');
@@ -30,8 +31,8 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
   window.scrollTo(0, 0);
-  $('mbar').hidden = b.dataset.v === 'add';
-  $('smBtn').hidden = b.dataset.v !== 'dash';
+  const mbar = $('mbar'); if (mbar) mbar.hidden = b.dataset.v === 'add';
+  const smBtn = $('smBtn'); if (smBtn) smBtn.hidden = b.dataset.v !== 'dash';
 });
 
 /* আয়/ব্যয় টগল */
@@ -55,37 +56,44 @@ function monthList(extra = []) {
     const x = new Date(d.getFullYear(), d.getMonth() + k, 1);
     out.push(x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'));
   }
-  extra.forEach(e => { if (!out.includes(e)) out.push(e); });
+  extra.forEach(e => { if (e && !out.includes(e)) out.push(e); });
   return out.sort().reverse();
 }
 
 function focusSel() {
-  const t = $('smTrack'), o = t.querySelector('.mc.on');
+  const t = $('smTrack'), o = t && t.querySelector('.mc.on');
   if (o && !$('smBox').hidden) t.scrollLeft = Math.max(0, o.getBoundingClientRect().left - t.getBoundingClientRect().left + t.scrollLeft - 60);
 }
 
 function setSel(arr) {
   sel = new Set(arr);
   const cur = curYM();
-  $('smTrack').innerHTML = monthList(arr).map(ym => `<button type="button" class="mc${sel.has(ym) ? ' on' : ''}${ym > cur ? ' adv' : ''}" data-ym="${ym}">${ymEn(ym)}</button>`).join('');
+  const t = $('smTrack');
+  if (!t) return;
+  t.innerHTML = monthList(arr).map(ym => `<button type="button" class="mc${sel.has(ym) ? ' on' : ''}${ym > cur ? ' adv' : ''}" data-ym="${ym}">${ymEn(ym)}</button>`).join('');
   focusSel();
 }
 
-$('smTrack').addEventListener('click', e => {
-  const b = e.target.closest('.mc');
-  if (!b) return;
-  const ym = b.dataset.ym;
-  if (sel.has(ym)) {
-    if (sel.size > 1) sel.delete(ym);
-    else return toast('কমপক্ষে একটি মাস বাছাই থাকতে হবে');
-  } else sel.add(ym);
-  b.classList.toggle('on', sel.has(ym));
-  if (editId) delete $('a').dataset.man;
-  autoAmt();
-});
+const smTrackEl = $('smTrack');
+if (smTrackEl) {
+  smTrackEl.addEventListener('click', e => {
+    const b = e.target.closest('.mc');
+    if (!b) return;
+    const ym = b.dataset.ym;
+    if (sel.has(ym)) {
+      if (sel.size > 1) sel.delete(ym);
+      else return toast('কমপক্ষে একটি মাস বাছাই থাকতে হবে');
+    } else sel.add(ym);
+    b.classList.toggle('on', sel.has(ym));
+    if (editId) delete $('a').dataset.man;
+    autoAmt();
+  });
+}
 
-$('smL').onclick = () => $('smTrack').scrollBy({ left: -200, behavior: 'smooth' });
-$('smR').onclick = () => $('smTrack').scrollBy({ left: 200, behavior: 'smooth' });
+const smLEl = $('smL');
+if (smLEl) smLEl.onclick = () => $('smTrack').scrollBy({ left: -200, behavior: 'smooth' });
+const smREl = $('smR');
+if (smREl) smREl.onclick = () => $('smTrack').scrollBy({ left: 200, behavior: 'smooth' });
 
 function autoAmt() {
   if ($('flatBox').hidden || $('a').dataset.man || !$('fl').value) return;
@@ -94,11 +102,13 @@ function autoAmt() {
 }
 
 function showOwner() {
-  $('owner').textContent = ownerOf($('fl').value);
+  const o = $('owner');
+  if (o) o.textContent = ownerOf($('fl').value);
   autoAmt();
 }
 
-$('a').addEventListener('input', () => { $('a').dataset.man = 1; });
+const aEl = $('a');
+if (aEl) aEl.addEventListener('input', () => { $('a').dataset.man = 1; });
 
 function resetForm() {
   editId = null;
@@ -136,12 +146,16 @@ function updSc() {
   if (sc) focusSel();
 }
 
-$('g').onchange = setSub;
-$('s').onchange = updSc;
-$('fl').innerHTML = '<option value="">ফ্ল্যাট বাছাই করুন</option>' + FLATS.map(x => `<option>${x.f}</option>`).join('');
-$('fl').onchange = () => { if (editId) delete $('a').dataset.man; showOwner(); };
+const gEl = $('g'); if (gEl) gEl.onchange = setSub;
+const sEl = $('s'); if (sEl) sEl.onchange = updSc;
+const flEl = $('fl');
+if (flEl) {
+  flEl.innerHTML = '<option value="">ফ্ল্যাট বাছাই করুন</option>' + FLATS.map(x => `<option>${x.f}</option>`).join('');
+  flEl.onchange = () => { if (editId) delete $('a').dataset.man; showOwner(); };
+}
 
-$('save').onclick = async () => {
+const saveBtn = $('save');
+if (saveBtn) saveBtn.onclick = async () => {
   const f = $('f'), iso = getISO();
   $('d').setCustomValidity(iso ? '' : 'সঠিক তারিখ দিন (দিন/মাস/বছর)');
   if (!f.reportValidity()) return;
@@ -195,7 +209,8 @@ function startEdit(id) {
   if (r) r.checked = true;
 }
 
-$('cancelEdit').onclick = () => {
+const cancelBtn = $('cancelEdit');
+if (cancelBtn) cancelBtn.onclick = () => {
   const was = editId;
   resetForm();
   document.querySelector('nav button[data-v=' + (was ? 'list' : 'dash') + ']').click();
@@ -216,14 +231,16 @@ function setDateISO(v) {
   $('d').setCustomValidity('');
 }
 
-$('d').addEventListener('input', () => {
+const dEl = $('d');
+if (dEl) dEl.addEventListener('input', () => {
   const t = $('d').value.replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/\D/g, '').slice(0, 8);
   $('d').value = t.length > 4 ? t.slice(0, 2) + '/' + t.slice(2, 4) + '/' + t.slice(4) : t.length > 2 ? t.slice(0, 2) + '/' + t.slice(2) : t;
   $('d').setCustomValidity('');
   $('dpick').value = getISO();
 });
 
-$('dpick').onchange = () => { if ($('dpick').value) setDateISO($('dpick').value); };
+const dpickEl = $('dpick');
+if (dpickEl) dpickEl.onchange = () => { if ($('dpick').value) setDateISO($('dpick').value); };
 
 /* ইনভয়েস */
 function nextNo(l, t) {
@@ -238,11 +255,11 @@ function openPrev(pages, name) {
   $('invBody').innerHTML = pages.join('');
   $('invOv').hidden = false;
   fitInv();
-  document.querySelector('.invbox').scrollTop = 0;
+  const ib = document.querySelector('.invbox'); if (ib) ib.scrollTop = 0;
 }
 function fitInv() {
   const b = $('invBody');
-  if (!b.firstElementChild) return;
+  if (!b || !b.firstElementChild) return;
   const sc = Math.min(1, (innerWidth - 64) / 794);
   b.style.width = '794px';
   b.style.transform = `scale(${sc})`;
@@ -254,18 +271,19 @@ function showInv(id) {
   if (!t) return;
   openPrev([invHTML(t)], (t.type === 'income' ? 'receipt-' : 'voucher-') + t.no.replace(/[^0-9-]/g, '').replace(/^-/, '') + '.pdf');
 }
-window.addEventListener('resize', () => { if (!$('invOv').hidden) fitInv(); });
-$('tb').addEventListener('click', e => {
+window.addEventListener('resize', () => { const io = $('invOv'); if (io && !io.hidden) fitInv(); });
+const tbEl = $('tb');
+if (tbEl) tbEl.addEventListener('click', e => {
   const b = e.target.closest('.ib');
   if (!b) return;
   const c = b.classList;
   c.contains('del') ? del(b.dataset.id) : c.contains('ed') ? startEdit(b.dataset.id) : showInv(b.dataset.id);
 });
-$('invX').onclick = () => $('invOv').hidden = true;
-$('invOv').addEventListener('click', e => { if (e.target.id === 'invOv') $('invOv').hidden = true; });
-$('invD').onclick = () => curDL && pdfOut(curDL.pages, curDL.name);
-$('invS').onclick = () => curDL && pdfShare(curDL.pages, curDL.name);
-$('smBtn').onclick = () => openPrev(sumPages(), 'summary-' + $('month').value + '.pdf');
+const invX = $('invX'); if (invX) invX.onclick = () => $('invOv').hidden = true;
+const invOv = $('invOv'); if (invOv) invOv.addEventListener('click', e => { if (e.target.id === 'invOv') $('invOv').hidden = true; });
+const invD = $('invD'); if (invD) invD.onclick = () => curDL && pdfOut(curDL.pages, curDL.name);
+const invS = $('invS'); if (invS) invS.onclick = () => curDL && pdfShare(curDL.pages, curDL.name);
+const smBtnEl = $('smBtn'); if (smBtnEl) smBtnEl.onclick = () => openPrev(sumPages(), 'summary-' + $('month').value + '.pdf');
 
 const mkey = d => d.slice(0, 7);
 
@@ -463,30 +481,32 @@ function csv() {
 const now = new Date(), z = n => String(n).padStart(2, '0');
 const Y = now.getFullYear();
 function setMonth(v) { $('month').value = v; }
-$('month').onchange = render;
+const monthEl = $('month'); if (monthEl) monthEl.onchange = render;
 setMonth(`${Y}-${z(now.getMonth() + 1)}`);
 setDateISO(`${now.getFullYear()}-${z(now.getMonth() + 1)}-${z(now.getDate())}`);
 $('chips').innerHTML = ACCTS.map(a => `<label class="chip"><input type="radio" name="acct" value="${a.k}" required><span>${svg(a.d, 22)}${a.s}${a.br ? `<small>${a.br}</small>` : ''}</span></label>`).join('');
-initReports();
+if (typeof initReports === 'function') initReports();
 setType();
 
 /* ===== লগইন ও চালু করা ===== */
 function showLogin(msg, err) {
-  $('loginOv').hidden = false;
-  $('loginMsg').textContent = msg || '';
-  $('loginMsg').className = err ? 'lerr' : '';
-  $('lpw').value = '';
+  const lo = $('loginOv'); if (!lo) return;
+  lo.hidden = false;
+  const lm = $('loginMsg'); if (lm) { lm.textContent = msg || ''; lm.className = err ? 'lerr' : ''; }
+  const lp = $('lpw'); if (lp) lp.value = '';
 }
-function hideLogin() { $('loginOv').hidden = true; }
+function hideLogin() { const lo = $('loginOv'); if (lo) lo.hidden = true; }
 
 function applyRole() {
+  if (!SB.profile) return;
   const r = SB.profile.role;
   document.body.classList.remove('r-admin', 'r-accountant', 'r-viewer');
   document.body.classList.add('r-' + r);
-  $('whoName').textContent = SB.profile.full_name;
-  $('whobar').hidden = false;
-  $('impBtn').hidden = !(r === 'admin' && DB.legacyCount() > 0);
-  $('adminMenu').hidden = r !== 'admin';
+  const wn = $('whoName'); if (wn) wn.textContent = SB.profile.full_name;
+  const wb = $('whobar'); if (wb) wb.hidden = false;
+  const ib = $('impBtn'); if (ib) ib.hidden = !(r === 'admin' && DB.legacyCount() > 0);
+  const am = $('adminMenu'); if (am) am.hidden = r !== 'admin';
+  const im = $('impMenuItem'); if (im) im.hidden = !(r === 'admin' && DB.legacyCount() > 0);
 }
 
 async function startApp() {
@@ -518,7 +538,8 @@ async function bootApp() {
 }
 
 /* ===== লগইন ফর্ম (username দিয়ে) ===== */
-$('loginForm').addEventListener('submit', async e => {
+const loginFormEl = $('loginForm');
+if (loginFormEl) loginFormEl.addEventListener('submit', async e => {
   e.preventDefault();
   const b = $('loginBtn');
   const username = $('lem').value.trim();
@@ -549,13 +570,15 @@ $('loginForm').addEventListener('submit', async e => {
 (function () {
   try {
     const saved = localStorage.getItem('kmt_last_user');
-    if (saved) $('lem').value = saved;
+    const le = $('lem'); if (saved && le) le.value = saved;
   } catch (e) {}
 })();
 
 /* ===== Header buttons ===== */
-$('btnOut').onclick = async () => { await SB.logout(); location.reload(); };
-$('btnPw').onclick = changePw;
+const btnOutEl = $('btnOut');
+if (btnOutEl) btnOutEl.onclick = async () => { await SB.logout(); location.reload(); };
+const btnPwEl = $('btnPw');
+if (btnPwEl) btnPwEl.onclick = changePw;
 
 /* ===== Admin Menu ===== */
 (function setupAdminMenu() {
@@ -583,7 +606,7 @@ $('btnPw').onclick = changePw;
 })();
 
 /* ===== User Manager Setup ===== */
-if (window.setupUserManager) window.setupUserManager();
+if (typeof window.setupUserManager === 'function') window.setupUserManager();
 
 /* ===== Legacy import ===== */
 async function importLocal() {
