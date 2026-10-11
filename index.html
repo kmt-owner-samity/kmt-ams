@@ -92,9 +92,11 @@
 </div>
 
 <!-- ===================================================================
-     APP SHELL (login-এর পরে দেখাবে)
+     APP SHELL
      =================================================================== -->
 <div class="app" id="appShell" hidden>
+
+  <!-- Header -->
   <header class="app-header">
     <div class="brand">
       <div class="brand-logo">
@@ -130,16 +132,210 @@
     </div>
   </header>
 
+  <!-- Main -->
   <main class="app-main">
-    <div class="placeholder">
-      <h2>স্বাগতম! 🎉</h2>
-      <p>Database সংযোগ সফল হয়েছে।</p>
-      <p style="font-size:.85rem;color:var(--mute);margin-top:20px">
-        পরবর্তী ধাপে Dashboard, Entry, Reports যোগ করা হবে।
-      </p>
+
+    <!-- Month bar (only on dashboard) -->
+    <div class="month-bar" id="monthBar">
+      <label for="monthInput">মাস নির্বাচন</label>
+      <div class="bar-actions">
+        <input type="month" id="monthInput">
+        <button type="button" class="btn dark" id="btnSummary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          সামারি শীট
+        </button>
+        <div class="admin-menu" id="adminMenu" hidden>
+          <button type="button" class="admin-menu-btn" id="adminMenuBtn" aria-haspopup="true" aria-expanded="false">
+            ⚙️ অ্যাডমিন
+          </button>
+          <div class="admin-menu-panel" id="adminMenuPanel" hidden>
+            <button type="button" data-act="open">💰 জের সম্পাদনা</button>
+            <button type="button" data-act="transfer">🔄 ট্রান্সফার জের</button>
+            <button type="button" data-act="sc">📊 সার্ভিস চার্জ সেটআপ</button>
+            <button type="button" data-act="users">👥 ইউজার ম্যানেজমেন্ট</button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Nav tabs -->
+    <nav class="nav-tabs">
+      <button class="on" data-v="dash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        ড্যাশবোর্ড
+      </button>
+      <button data-v="add" class="wr-only">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        আয়/ব্যয় এন্ট্রি
+      </button>
+      <button data-v="list">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <line x1="9" y1="12" x2="15" y2="12"/>
+          <line x1="9" y1="16" x2="15" y2="16"/>
+        </svg>
+        লেনদেন
+      </button>
+    </nav>
+
+    <!-- ============ VIEW: DASHBOARD ============ -->
+    <section class="view on" id="v-dash">
+
+      <!-- 4 Summary Cards -->
+      <div class="summary-grid" id="summaryGrid"></div>
+
+      <!-- 3 Account Cards -->
+      <div class="accounts-grid" id="accountsGrid"></div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-grid">
+        <div class="card">
+          <h2 class="in">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 4v12m0 0l-5-5m5 5l5-5M5 20h14"/>
+            </svg>
+            আয়ের বিবরণ
+          </h2>
+          <div id="bdIncome"></div>
+        </div>
+        <div class="card">
+          <h2 class="out">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20V8m0 0l-5 5m5-5l5 5M5 4h14"/>
+            </svg>
+            ব্যয়ের বিবরণ
+          </h2>
+          <div id="bdExpense"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: ENTRY (Add) ============ -->
+    <section class="view" id="v-add">
+      <div class="card">
+        <!-- Income/Expense Toggle -->
+        <div class="seg-toggle" id="segToggle">
+          <button type="button" class="on" data-t="income">
+            <span class="em">📈</span> আয়
+          </button>
+          <button type="button" data-t="expense">
+            <span class="em">📉</span> ব্যয়
+          </button>
+        </div>
+
+        <form id="entryForm" onsubmit="return false">
+          <h2 id="entryTitle" style="margin-bottom:16px">নতুন আয় যোগ করুন</h2>
+
+          <div class="form-grid">
+
+            <!-- Date -->
+            <div class="full">
+              <label for="entryDate">তারিখ (দিন/মাস/বছর)</label>
+              <div class="date-wrap">
+                <input type="text" id="entryDate" class="dtext" inputmode="numeric"
+                       placeholder="DD/MM/YYYY" maxlength="10" autocomplete="off" required>
+                <span class="cal">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="16" rx="2"/>
+                    <path d="M3 10h18M8 3v4M16 3v4"/>
+                  </svg>
+                </span>
+                <input type="date" id="entryDatePicker" class="dpk" aria-label="ক্যালেন্ডার">
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div>
+              <label for="entryGroup">প্রধান খাত</label>
+              <select id="entryGroup" required></select>
+            </div>
+            <div>
+              <label for="entrySub">উপ খাত</label>
+              <select id="entrySub" required></select>
+            </div>
+
+            <!-- Flat + Owner -->
+            <div class="full" id="flatBox" hidden>
+              <label for="entryFlat">ফ্ল্যাট</label>
+              <select id="entryFlat"></select>
+              <div class="owner-display" id="ownerDisplay"></div>
+            </div>
+
+            <!-- Service charge months -->
+            <div class="full" id="scBox" hidden>
+              <label>কোন মাসের সার্ভিস চার্জ <small style="font-weight:400">(একাধিক বাছাই করা যাবে)</small></label>
+              <div class="month-slider">
+                <button type="button" class="arr" id="smPrev" aria-label="আগের দিকে">←</button>
+                <div class="month-track" id="smTrack"></div>
+                <button type="button" class="arr" id="smNext" aria-label="পরের দিকে">→</button>
+              </div>
+            </div>
+
+            <!-- Amount -->
+            <div class="full">
+              <label for="entryAmount">টাকার পরিমাণ (৳)</label>
+              <input type="number" id="entryAmount" min="1" step="any" inputmode="decimal" required>
+            </div>
+
+            <!-- Payment chips -->
+            <div class="full">
+              <label id="chipLabel">পেমেন্ট মাধ্যম</label>
+              <div class="chips" id="entryChips" role="radiogroup"></div>
+            </div>
+
+            <!-- Note -->
+            <div class="full">
+              <label for="entryNote">বিবরণ / ভাউচার নং (ঐচ্ছিক)</label>
+              <input type="text" id="entryNote" autocomplete="off">
+            </div>
+
+            <!-- Buttons -->
+            <div class="full" style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+              <button type="button" class="btn" id="entrySave">সংরক্ষণ করুন</button>
+              <button type="button" class="btn ghost" id="entryCancel">বাতিল</button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ VIEW: TRANSACTIONS ============ -->
+    <section class="view" id="v-list">
+      <div class="card">
+        <h2>লেনদেনের বিস্তারিত</h2>
+        <div class="txn-list">
+          <table class="txn-table">
+            <thead>
+              <tr>
+                <th>তারিখ</th>
+                <th>ধরণ</th>
+                <th>খাত / বিবরণ</th>
+                <th class="n">পরিমাণ</th>
+                <th class="n" style="text-align:center">অ্যাকশন</th>
+              </tr>
+            </thead>
+            <tbody id="txnBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
+
 <!-- ===================================================================
      MODAL DIALOG
      =================================================================== -->
@@ -154,13 +350,14 @@
     </div>
   </div>
 </div>
+
 <!-- ===================================================================
      TOAST
      =================================================================== -->
 <div class="toast" id="toast" role="status"></div>
 
 <!-- ===================================================================
-     SCRIPTS (ES Modules)
+     SCRIPTS
      =================================================================== -->
 <script type="module" src="js/app.js"></script>
 
