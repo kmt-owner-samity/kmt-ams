@@ -53,25 +53,22 @@ async function refreshUserList() {
       const roleCls = u.is_active ? u.role : 'inactive';
       const roleLabel = u.is_active ? (UM_ROLE_BN[u.role] || u.role) : 'নিষ্ক্রিয়';
 
-      return `
-        <div class="user-item">
-          <div class="user-info">
-            <div class="user-name">
-              ${esc(u.full_name)}${isMe ? ' <small style="color:var(--mute);font-weight:400">(আপনি)</small>' : ''}
-            </div>
-            <div class="user-meta">
-              <span>👤 ${esc(u.login_id || '—')}</span>
-              <span class="role-badge ${roleCls}">${roleLabel}</span>
-            </div>
-          </div>
-          <div class="user-actions">
-            <button type="button" onclick="editUser('${u.id}')" title="সম্পাদনা">✏️ সম্পাদনা</button>
-            <button type="button" onclick="resetUserPw('${u.id}','${esc(u.full_name).replace(/'/g, "\\'")}')" title="পাসওয়ার্ড">🔑 পাসওয়ার্ড</button>
-            ${!isMe ? `<button type="button" onclick="toggleUserActive('${u.id}', ${u.is_active})">${u.is_active ? '🚫 নিষ্ক্রিয়' : '✓ সক্রিয়'}</button>` : ''}
-            ${!isMe ? `<button type="button" class="danger" onclick="deleteUser('${u.id}','${esc(u.full_name).replace(/'/g, "\\'")}')" title="মুছুন">🗑️ মুছুন</button>` : ''}
-          </div>
-        </div>
-      `;
+return `
+  <div class="user-item">
+    <div class="user-info">
+      <div class="user-name">
+        ${esc(u.full_name)}
+      </div>
+      <div class="user-meta">
+        <span>👤 ${esc(u.login_id || '—')}${isMe ? ' <small style="color:var(--mute);font-weight:400">(আপনি)</small>' : ''}</span>
+        <span class="role-badge ${roleCls}">${roleLabel}</span>
+      </div>
+    </div>
+    <div class="user-actions">
+      ...
+    </div>
+  </div>
+`;
     }).join('');
   } catch (e) {
     box.innerHTML = `<div class="empty">লোড করা যায়নি: ${esc(e.message)}</div>`;
