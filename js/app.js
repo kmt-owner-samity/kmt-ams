@@ -497,8 +497,7 @@ async function saveProfile() {
 /* Profile modal listeners */
 const profileCancelBtn = $('profileCancel'); if (profileCancelBtn) profileCancelBtn.onclick = closeProfile;
 const profileSaveBtn = $('profileSave'); if (profileSaveBtn) profileSaveBtn.onclick = saveProfile;
-const profileOvEl = $('profileOv');
-if (profileOvEl) profileOvEl.addEventListener('click', e => { if (e.target.id === 'profileOv') closeProfile(); });
+/* Profile modal — বাইরে click-এ বন্ধ হবে না (form protection) */
 
 async function adminAct(k) {
   if (k === 'pw') return changePw();
