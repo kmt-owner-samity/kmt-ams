@@ -5,21 +5,6 @@
 
 const UM_ROLE_BN = { admin: 'অ্যাডমিন', accountant: 'হিসাবরক্ষক', viewer: 'দর্শক' };
 
-/* ===== English-only filter ===== */
-function englishOnly(input) {
-  if (!input) return;
-  input.setAttribute('inputmode', 'latin');
-  input.classList.add('english-only');
-  input.addEventListener('input', () => {
-    const cleaned = input.value.replace(/[^A-Za-z0-9._\-@]/g, '');
-    if (cleaned !== input.value) {
-      const pos = input.selectionStart;
-      input.value = cleaned;
-      try { input.setSelectionRange(pos - 1, pos - 1); } catch (e) {}
-    }
-  });
-}
-
 /* ===== Open / Close ===== */
 function openUserManager() {
   const ov = document.getElementById('userOv');
@@ -53,22 +38,25 @@ async function refreshUserList() {
       const roleCls = u.is_active ? u.role : 'inactive';
       const roleLabel = u.is_active ? (UM_ROLE_BN[u.role] || u.role) : 'নিষ্ক্রিয়';
 
-return `
-  <div class="user-item">
-    <div class="user-info">
-      <div class="user-name">
-        ${esc(u.full_name)}
-      </div>
-      <div class="user-meta">
-        <span>👤 ${esc(u.login_id || '—')}${isMe ? ' <small style="color:var(--mute);font-weight:400">(আপনি)</small>' : ''}</span>
-        <span class="role-badge ${roleCls}">${roleLabel}</span>
-      </div>
-    </div>
-    <div class="user-actions">
-      ...
-    </div>
-  </div>
-`;
+      const safeName = esc(u.full_name).replace(/'/g, "\\'");
+
+      return `
+        <div class="user-item">
+          <div class="user-info">
+            <div class="user-name">${esc(u.full_name)}</div>
+            <div class="user-meta">
+              <span>👤 ${esc(u.login_id || '—')}${isMe ? ' <small style="color:var(--mute);font-weight:400">(আপনি)</small>' : ''}</span>
+              <span class="role-badge ${roleCls}">${roleLabel}</span>
+            </div>
+          </div>
+          <div class="user-actions">
+            <button type="button" onclick="editUser('${u.id}')" title="সম্পাদনা">✏️ সম্পাদনা</button>
+            <button type="button" onclick="resetUserPw('${u.id}','${safeName}')" title="পাসওয়ার্ড">🔑 পাসওয়ার্ড</button>
+            ${!isMe ? `<button type="button" onclick="toggleUserActive('${u.id}', ${u.is_active})">${u.is_active ? '🚫 নিষ্ক্রিয়' : '✓ সক্রিয়'}</button>` : ''}
+            ${!isMe ? `<button type="button" class="danger" onclick="deleteUser('${u.id}','${safeName}')" title="মুছুন">🗑️ মুছুন</button>` : ''}
+          </div>
+        </div>
+      `;
     }).join('');
   } catch (e) {
     box.innerHTML = `<div class="empty">লোড করা যায়নি: ${esc(e.message)}</div>`;
@@ -116,7 +104,7 @@ async function addUser() {
   }
 }
 
-/* ===== Edit user (username, email, full name, role, active) ===== */
+/* ===== Edit user ===== */
 async function editUser(id) {
   const users = await SB.adminUserList();
   const u = users.find(x => x.id === id);
@@ -239,11 +227,11 @@ async function toggleUserActive(id, isActive) {
   }
 }
 
-/* ===== Delete user (permanent) ===== */
+/* ===== Delete user (single confirm) ===== */
 async function deleteUser(id, name) {
   const v = await ask({
     title: '⚠️ ইউজার মুছবেন?',
-    msg: `${name} — এই ইউজারটি স্থায়ীভাবে মুছে যাবে।`,
+    msg: `${name} — এই ইউজারটি স্থায়ীভাবে মুছে যাবে। এই কাজ ফিরিয়ে আনা যাবে না।`,
     ok: 'হ্যাঁ, মুছে ফেলুন'
   });
   if (!v) return;
