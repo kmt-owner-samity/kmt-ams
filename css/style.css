@@ -1209,3 +1209,32 @@ input.english-only::placeholder{
   .gear-panel{ min-width: 190px; }
 }
 
+/* ============ HEADER ALIGN FIX ============ */
+.user-chip{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.user-name{
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ============ USER LIST FIX ============ */
+.user-meta span{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.user-info{
+  min-width: 0;
+  flex: 1;
+}
+.user-name{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
