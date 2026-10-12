@@ -109,7 +109,17 @@ function renderEditList() {
 
     ['owner_name', 'owner_phone', 'tenant_name', 'tenant_phone'].forEach(role => {
       const inp = el.querySelector(`[data-role="${role}"]`);
-      if (inp) inp.addEventListener('input', () => { row[role] = inp.value; });
+      if (!inp) return;
+      inp.addEventListener('input', () => {
+        // Mobile fields — শুধু digit allow
+        if (role === 'owner_phone' || role === 'tenant_phone') {
+          const cleaned = inp.value.replace(/\D/g, '').slice(0, 11);
+          if (cleaned !== inp.value) inp.value = cleaned;
+          row[role] = cleaned;
+        } else {
+          row[role] = inp.value;
+        }
+      });
     });
   });
 }
