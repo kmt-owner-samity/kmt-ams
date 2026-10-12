@@ -286,8 +286,7 @@ async function saveAllFlats() {
       body: { p_items: payload },
     });
 
-    const count = res && res.count ? res.count : payload.length;
-    toast(`${bd(count)}টি ফ্ল্যাট হালনাগাদ হয়েছে ✓`);
+   toast('সংরক্ষিত হয়েছে ✓');
 
     try { await DB.loadRef(); } catch (err) { console.error('DB.loadRef failed:', err); }
     closeFlatManager();
