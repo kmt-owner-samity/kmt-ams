@@ -332,18 +332,18 @@ async function render() {
 }
 
 /* মডাল */
-function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে' }) {
+function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে', validate = null }) {
   return new Promise(res => {
     $('dt').textContent = title;
     $('dm').textContent = msg;
     $('dm').hidden = !msg;
     $('df').innerHTML = fields.map((f, i) => {
       const lb = f.label ? `<label for="df${i}">${esc(f.label)}</label>` : '';
-      const ac = f.autocomplete === false ? 'off' : 'off';
       if (f.type === 'select') return lb + `<select id="df${i}" style="margin-bottom:10px"><option value="">বাছাই করুন</option>${f.options.map(([v, t]) => `<option value="${esc(v)}"${v === f.value ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
-      const inp = `<input id="df${i}" type="${f.type || 'text'}" placeholder="${esc(f.ph || '')}" value="${esc(f.value ?? '')}" ${f.type === 'number' ? 'step="any" min="0" inputmode="decimal"' : ''} ${f.mask ? 'inputmode="numeric" maxlength="10" style="padding-right:46px"' : 'style="margin-bottom:10px"'} autocomplete="${ac}">`;
+      const inp = `<input id="df${i}" type="${f.type || 'text'}" placeholder="${esc(f.ph || '')}" value="${esc(f.value ?? '')}" ${f.type === 'number' ? 'step="any" min="0" inputmode="decimal"' : ''} ${f.mask ? 'inputmode="numeric" maxlength="10" style="padding-right:46px"' : 'style="margin-bottom:10px"'} autocomplete="off">`;
       return lb + (f.mask === 'date' ? `<div class="dwrap" style="margin-bottom:10px">${inp}<span class="cal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><input type="date" id="dp${i}" class="dpk" aria-label="ক্যালেন্ডার"></div>` : inp);
     }).join('');
+
     fields.forEach((f, i) => {
       if (f.mask !== 'date') return;
       const t = $('df' + i), p = $('dp' + i);
@@ -351,12 +351,27 @@ function ask({ title, msg = '', fields = [], ok = 'ঠিক আছে' }) {
       t.addEventListener('input', () => { t.value = fmtDMY(t.value); p.value = parseDMY(t.value) || ''; });
       p.onchange = () => { if (p.value) { const [y, m, d] = p.value.split('-'); t.value = d + '/' + m + '/' + y; } };
     });
+
     $('dok').textContent = ok;
     $('dlg').hidden = false;
-    const done = v => { $('dlg').hidden = true; $('dok').onclick = $('dno').onclick = document.onkeydown = null; res(v); };
+
+    const done = v => {
+      // validate callback — ভুল হলে dialog বন্ধ হবে না
+      if (v !== null && typeof validate === 'function') {
+        const err = validate(v);
+        if (err) {
+          toast(err, true);
+          return;
+        }
+      }
+      $('dlg').hidden = true;
+      $('dok').onclick = $('dno').onclick = document.onkeydown = null;
+      res(v);
+    };
+
     $('dok').onclick = () => done(fields.map((_, i) => $('df' + i).value));
     $('dno').onclick = () => done(null);
-    document.onkeydown = e => { if (e.key === 'Escape') done(null); else if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') $('dok').click(); };
+    document.onkeydown = e => { if (e.key === 'Escape') done(null); else if (e.key === 'Enter' && e.target.tagName !== 'BUTTON' && e.target.tagName !== 'TEXTAREA') $('dok').click(); };
     (fields.length ? $('df0') : $('dok')).focus();
   });
 }
