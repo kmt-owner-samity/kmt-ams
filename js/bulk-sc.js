@@ -1,0 +1,358 @@
+/* =====================================================================
+   bulk-sc.js — Bulk Service Charge Entry
+   কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
+   
+   একসাথে অনেক ফ্ল্যাটের সার্ভিস চার্জ এন্ট্রি।
+   ===================================================================== */
+
+/* ===== State ===== */
+let bulkSel = {};   // { flatNo: {checked, date, amount, acct} }
+
+/* ===== Helpers ===== */
+const _b$ = id => document.getElementById(id);
+
+/* ===== Date: DD/MM/YYYY ===== */
+function _bParseDMY(v) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v).trim());
+  if (!m) return '';
+  const [, d, mo, y] = m;
+  const dt = new Date(+y, +mo - 1, +d);
+  return dt.getFullYear() == y && dt.getMonth() == mo - 1 && dt.getDate() == d
+    ? `${y}-${mo}-${d}` : '';
+}
+function _bFmtDMY(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function _bTodayISO() {
+  const d = new Date(), z = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+}
+
+/* ===== Open / Close ===== */
+function openBulkSc() {
+  const ov = _b$('bulkScOv');
+  if (!ov) return;
+
+  // 1. Month default = previous month
+  const d = new Date();
+  const prev = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+  const prevYM = prev.getFullYear() + '-' + String(prev.getMonth() + 1).padStart(2, '0');
+  _b$('bulkMonth').value = prevYM;
+
+  // 2. Date default = today
+  _b$('bulkDate').value = _bFmtDMY(_bTodayISO());
+
+  // 3. Payment options from ACCTS
+  _b$('bulkAcct').innerHTML = '<option value="">বাছাই করুন</option>' +
+    ACCTS.map(a => `<option value="${a.k}">${a.s}</option>`).join('');
+  _b$('bulkAcct').value = 'cash';
+
+  // 4. Init state
+  bulkSel = {};
+  const defAcct = 'cash';
+  const defDate = _bTodayISO();
+
+  // 5. Build state from FLATS
+  FLATS.forEach(x => {
+    const rate = expAmt(x.f);
+    bulkSel[x.f] = {
+      checked: true,
+      date: defDate,
+      amount: rate > 0 ? rate : '',
+      acct: defAcct,
+      owner: x.o,
+    };
+  });
+
+  // 6. Render list
+  renderBulkList();
+
+  // 7. Show modal
+  ov.hidden = false;
+  _b$('bulkList').scrollTop = 0;
+}
+
+function closeBulkSc() {
+  const ov = _b$('bulkScOv');
+  if (ov) ov.hidden = true;
+  bulkSel = {};
+}
+
+/* ===== Render ===== */
+function renderBulkList() {
+  const box = _b$('bulkList');
+  if (!box) return;
+
+  const acctOpts = ACCTS.map(a => [a.k, a.s]);
+
+  box.innerHTML = FLATS.map(x => {
+    const s = bulkSel[x.f];
+    if (!s) return '';
+
+    const checked = s.checked ? 'checked' : '';
+    const cls = s.checked ? 'checked' : '';
+    const disabled = !s.checked;
+
+    return `
+      <div class="bulk-item ${cls}" data-flat="${esc(x.f)}">
+        <div class="bulk-check">
+          <input type="checkbox" ${checked} data-role="check">
+          <span class="box"></span>
+        </div>
+        <div class="bulk-info">
+          <div class="bulk-flat">${esc(x.f)}</div>
+          <div class="bulk-owner">${esc(x.o)}</div>
+        </div>
+        <div class="bulk-inputs">
+          <input type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY"
+                 value="${_bFmtDMY(s.date)}" data-role="date" autocomplete="off">
+          <input type="number" min="0" step="any" inputmode="decimal"
+                 placeholder="৳" value="${s.amount || ''}" data-role="amount">
+          <select data-role="acct">
+            ${acctOpts.map(([k, t]) =>
+              `<option value="${k}"${k === s.acct ? ' selected' : ''}>${t}</option>`
+            ).join('')}
+          </select>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Attach events
+  box.querySelectorAll('.bulk-item').forEach(el => {
+    const flat = el.dataset.flat;
+
+    // Checkbox
+    el.querySelector('[data-role="check"]').addEventListener('change', e => {
+      bulkSel[flat].checked = e.target.checked;
+      el.classList.toggle('checked', e.target.checked);
+      updateBulkSummary();
+    });
+
+    // Date
+    const dateInput = el.querySelector('[data-role="date"]');
+    dateInput.addEventListener('input', () => {
+      const raw = dateInput.value.replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/\D/g, '').slice(0, 8);
+      dateInput.value = raw.length > 4
+        ? raw.slice(0, 2) + '/' + raw.slice(2, 4) + '/' + raw.slice(4)
+        : raw.length > 2
+          ? raw.slice(0, 2) + '/' + raw.slice(2)
+          : raw;
+      const iso = _bParseDMY(dateInput.value);
+      if (iso) bulkSel[flat].date = iso;
+    });
+
+    // Amount
+    el.querySelector('[data-role="amount"]').addEventListener('input', e => {
+      bulkSel[flat].amount = e.target.value;
+      updateBulkSummary();
+    });
+
+    // Payment
+    el.querySelector('[data-role="acct"]').addEventListener('change', e => {
+      bulkSel[flat].acct = e.target.value;
+    });
+  });
+
+  updateBulkSummary();
+}
+
+/* ===== Summary ===== */
+function updateBulkSummary() {
+  let count = 0;
+  let total = 0;
+
+  Object.keys(bulkSel).forEach(flat => {
+    const s = bulkSel[flat];
+    if (!s.checked) return;
+    count++;
+    total += (+s.amount || 0);
+  });
+
+  const cntEl = _b$('bulkCount');
+  const totEl = _b$('bulkTotal');
+  if (cntEl) cntEl.textContent = bd(count);
+  if (totEl) totEl.textContent = tk(total);
+
+  // Save button label
+  const saveBtn = _b$('bulkSave');
+  if (saveBtn) {
+    saveBtn.textContent = count > 0
+      ? `${bd(count)}টি এন্ট্রি তৈরি করুন`
+      : 'এন্ট্রি তৈরি করুন';
+    saveBtn.disabled = count === 0;
+  }
+}
+
+/* ===== Bulk Actions ===== */
+function bulkSetAllDate() {
+  const iso = _bParseDMY(_b$('bulkDate').value);
+  if (!iso) return toast('সঠিক তারিখ দিন', true);
+
+  Object.keys(bulkSel).forEach(flat => {
+    if (bulkSel[flat].checked) bulkSel[flat].date = iso;
+  });
+  renderBulkList();
+  toast('সব checked-এ তারিখ বসানো হয়েছে');
+}
+
+function bulkSetAllAcct() {
+  const acct = _b$('bulkAcct').value;
+  if (!acct) return toast('Payment বাছাই করুন', true);
+
+  Object.keys(bulkSel).forEach(flat => {
+    if (bulkSel[flat].checked) bulkSel[flat].acct = acct;
+  });
+  renderBulkList();
+  toast('সব checked-এ payment বসানো হয়েছে');
+}
+
+function bulkSelectAll() {
+  Object.keys(bulkSel).forEach(flat => { bulkSel[flat].checked = true; });
+  renderBulkList();
+}
+
+function bulkDeselectAll() {
+  Object.keys(bulkSel).forEach(flat => { bulkSel[flat].checked = false; });
+  renderBulkList();
+}
+
+/* ===== Save ===== */
+async function bulkSave() {
+  // Collect checked items
+  const items = [];
+  const errors = [];
+
+  Object.keys(bulkSel).forEach(flat => {
+    const s = bulkSel[flat];
+    if (!s.checked) return;
+
+    // Validate
+    const iso = _bParseDMY(_bFmtDMY(s.date));
+    if (!iso) {
+      errors.push(`${flat}: তারিখ ভুল`);
+      return;
+    }
+    if (!(s.amount > 0)) {
+      errors.push(`${flat}: পরিমাণ দিন`);
+      return;
+    }
+    if (!s.acct) {
+      errors.push(`${flat}: Payment বাছাই করুন`);
+      return;
+    }
+
+    items.push({
+      flat,
+      date: iso,
+      amount: +s.amount,
+      acct: s.acct,
+      owner: s.owner,
+    });
+  });
+
+  if (errors.length) {
+    return toast(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} আরো)` : ''), true);
+  }
+  if (!items.length) {
+    return toast('কোনো ফ্ল্যাট বাছাই করা হয়নি', true);
+  }
+
+  // Month (for service_charge_months)
+  const ym = _b$('bulkMonth').value;
+  if (!ym) return toast('মাস বাছাই করুন', true);
+  const monthFirstDay = ym + '-01';
+
+  // Build payload
+  const catId = DB.catTop['income|মাসিক সার্ভিস চার্জ'];
+  const subId = catId && DB.catSub[catId + '|ফ্ল্যাটের সার্ভিস চার্জ'];
+  if (!catId || !subId) {
+    return toast('সার্ভিস চার্জের খাত পাওয়া যায়নি', true);
+  }
+
+  const payload = items.map(it => {
+    const acctRow = DB.accCode[it.acct];
+    const flatId = DB.flatId[it.flat];
+    if (!acctRow) throw new Error(`হিসাব "${it.acct}" নেই`);
+    if (!flatId) throw new Error(`ফ্ল্যাট "${it.flat}" নেই`);
+
+    return {
+      kind: 'income',
+      date: it.date,
+      cat: catId,
+      sub: subId,
+      acct: acctRow.id,
+      amount: it.amount,
+      flat: flatId,
+      owner: it.owner || null,
+      month: monthFirstDay,
+      note: '',
+    };
+  });
+
+  // Save
+  const btn = _b$('bulkSave');
+  const lab = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'সংরক্ষণ হচ্ছে…';
+
+  try {
+    const res = await SB.req('/rest/v1/rpc/add_txn_batch', {
+      method: 'POST',
+      body: { p_items: payload },
+    });
+
+    const count = res && res.count ? res.count : payload.length;
+    toast(`${bd(count)}টি এন্ট্রি তৈরি হয়েছে ✓`);
+
+    // Reload data
+    await DB.reload();
+
+    // Close modal
+    closeBulkSc();
+
+    // Go to dashboard + render
+    document.querySelector('nav button[data-v="dash"]').click();
+    await render();
+  } catch (e) {
+    toast(e.message || 'সংরক্ষণ ব্যর্থ', true);
+    btn.disabled = false;
+    btn.textContent = lab;
+  }
+}
+
+/* ===== Setup listeners ===== */
+function setupBulkSc() {
+  const ov = _b$('bulkScOv');
+  if (!ov) return;
+
+  // Close buttons
+  const xBtn = _b$('bulkScX'); if (xBtn) xBtn.onclick = closeBulkSc;
+  const cancelBtn = _b$('bulkCancel'); if (cancelBtn) cancelBtn.onclick = closeBulkSc;
+
+  // Overlay click
+  ov.addEventListener('click', e => {
+    if (e.target.id === 'bulkScOv') closeBulkSc();
+  });
+
+  // Bulk buttons
+  const setDateBtn = _b$('bulkSetAllDate'); if (setDateBtn) setDateBtn.onclick = bulkSetAllDate;
+  const setAcctBtn = _b$('bulkSetAllAcct'); if (setAcctBtn) setAcctBtn.onclick = bulkSetAllAcct;
+  const selAllBtn = _b$('bulkSelectAll'); if (selAllBtn) selAllBtn.onclick = bulkSelectAll;
+  const deselAllBtn = _b$('bulkDeselectAll'); if (deselAllBtn) deselAllBtn.onclick = bulkDeselectAll;
+
+  // Save button
+  const saveBtn = _b$('bulkSave'); if (saveBtn) saveBtn.onclick = bulkSave;
+
+  // Escape key
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !ov.hidden) closeBulkSc();
+  });
+}
+
+/* ===== Global expose ===== */
+window.openBulkSc = openBulkSc;
+window.closeBulkSc = closeBulkSc;
+window.setupBulkSc = setupBulkSc;
