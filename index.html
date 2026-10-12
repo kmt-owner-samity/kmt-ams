@@ -120,6 +120,7 @@
   <button type="button" data-act="transfer">🔄 ট্রান্সফার জের</button>
   <button type="button" data-act="sc">📊 সার্ভিস চার্জ সেটআপ</button>
   <button type="button" data-act="bulk-sc">📊 বাল্ক সার্ভিস চার্জ এন্ট্রি</button>
+  <button type="button" data-act="flats">🏢 ফ্ল্যাট ও মালিক ম্যানেজমেন্ট</button>
   <button type="button" data-act="users">👥 ইউজার ম্যানেজমেন্ট</button>
   <button type="button" data-act="import" id="impMenuItem" hidden>📥 পুরনো ডাটা আনুন</button>
 </div>
@@ -379,6 +380,72 @@
   </div>
 </div>
 
+<!-- ===================================================================
+     FLAT MANAGER (Admin only)
+     =================================================================== -->
+<div class="ov" id="flatOv" hidden>
+  <div class="invbox" style="max-width:900px;width:100%;max-height:92vh">
+    <!-- Header -->
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <h2 style="margin:0">🏢 ফ্ল্যাট ও মালিক ম্যানেজমেন্ট</h2>
+        <p style="margin:4px 0 0;color:var(--mute);font-size:.85rem">
+          সব ফ্ল্যাটের মালিক ও ভাড়াটিয়ার তথ্য
+        </p>
+      </div>
+      <button class="btn ghost" id="flatX" type="button">বন্ধ করুন</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="fm-tabs" role="tablist">
+      <button type="button" class="fm-tab on" data-tab="edit">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/></svg>
+        তথ্য সম্পাদনা
+      </button>
+      <button type="button" class="fm-tab" data-tab="list">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        মালিক ও ভাড়াটিয়া তালিকা
+      </button>
+    </div>
+
+    <!-- Tab 1: Edit -->
+    <div class="fm-panel on" id="fmPanelEdit">
+      <div class="fm-list" id="fmList">
+        <div class="empty">লোড হচ্ছে...</div>
+      </div>
+      <div class="row" style="justify-content:flex-end;gap:8px;margin-top:14px">
+        <button class="btn ghost" id="flatCancel" type="button">বাতিল</button>
+        <button class="btn" id="flatSave" type="button" style="--acc:var(--ink)">সব সংরক্ষণ করুন</button>
+      </div>
+    </div>
+
+    <!-- Tab 2: List -->
+    <div class="fm-panel" id="fmPanelList">
+      <!-- Action bar (top) -->
+      <div class="fm-action-bar">
+        <div class="fm-filter">
+          <button type="button" class="fm-filter-btn on" data-filter="all">সব</button>
+          <button type="button" class="fm-filter-btn" data-filter="tenant">শুধু tenant</button>
+        </div>
+        <div class="fm-list-actions">
+          <button class="btn ghost sm" id="fmShare" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            শেয়ার করুন
+          </button>
+          <button class="btn ghost sm" id="fmDownload" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            ডাউনলোড করুন
+          </button>
+        </div>
+      </div>
+      <!-- Preview (scaled A4) -->
+      <div class="fm-preview-wrap">
+        <div id="fmFit"><div id="fmPreview"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+     
 <!-- ===================================================================
      LOGIN
      =================================================================== -->
