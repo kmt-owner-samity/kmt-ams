@@ -1292,4 +1292,40 @@ input.english-only::placeholder{
   place-items: center;
   line-height: 1;
 }
+/* ============ USER MANAGER — Actions visible ============ */
+.user-item{
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  gap: 8px !important;
+  padding: 12px 4px !important;
+  border-bottom: 1px solid var(--line) !important;
+  align-items: center !important;
+}
+.user-info{
+  min-width: 0 !important;
+  flex: 1 !important;
+}
+.user-actions{
+  display: flex !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-end !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.user-actions button{
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 700px){
+  .user-item{
+    grid-template-columns: 1fr !important;
+  }
+  .user-actions{
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+}
 
