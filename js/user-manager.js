@@ -250,18 +250,13 @@ async function deleteUser(id, name) {
 
 /* ===== Setup listeners ===== */
 function setupUserManager() {
-  const ov = document.getElementById('userOv');
   const xBtn = document.getElementById('userOvX');
   const addBtn = document.getElementById('userAddBtn');
 
   if (xBtn) xBtn.onclick = closeUserManager;
   if (addBtn) addBtn.onclick = addUser;
 
-  if (ov) {
-    ov.addEventListener('click', e => {
-      if (e.target.id === 'userOv') closeUserManager();
-    });
-  }
+  // User management modal — বাইরে click-এ বন্ধ হবে না (form protection)
 }
 
 /* ===== Global expose ===== */
