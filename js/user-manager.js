@@ -168,13 +168,16 @@ async function editUser(id) {
   const is_active = isMe ? true : (v[4] === 'true');
 
   try {
-    await SB.rpc('admin_user_update_full', {
-      p_id: id,
-      p_login_id: login_id,
-      p_email: email,
-      p_full_name: full_name,
-      p_role: role,
-      p_is_active: is_active
+    await SB.req('/rest/v1/rpc/admin_user_update_full', {
+      method: 'POST',
+      body: {
+        p_id: id,
+        p_login_id: login_id,
+        p_email: email,
+        p_full_name: full_name,
+        p_role: role,
+        p_is_active: is_active
+      }
     });
     toast('ইউজার হালনাগাদ হয়েছে ✓');
     refreshUserList();
@@ -221,13 +224,16 @@ async function toggleUserActive(id, isActive) {
   if (!v) return;
 
   try {
-    await SB.rpc('admin_user_update_full', {
-      p_id: id,
-      p_login_id: u.login_id,
-      p_email: u.email,
-      p_full_name: u.full_name,
-      p_role: u.role,
-      p_is_active: !isActive
+    await SB.req('/rest/v1/rpc/admin_user_update_full', {
+      method: 'POST',
+      body: {
+        p_id: id,
+        p_login_id: u.login_id,
+        p_email: u.email,
+        p_full_name: u.full_name,
+        p_role: u.role,
+        p_is_active: !isActive
+      }
     });
     toast(`ইউজার ${action} হয়েছে ✓`);
     refreshUserList();
@@ -239,26 +245,17 @@ async function toggleUserActive(id, isActive) {
 /* ===== Delete user (permanent) ===== */
 async function deleteUser(id, name) {
   const v = await ask({
-    title: '⚠️ ইউজার সম্পূর্ণ মুছবেন?',
-    msg: `${name} — এই ইউজারটি স্থায়ীভাবে মুছে যাবে। এই কাজ ফিরিয়ে আনা যাবে না।`,
-    ok: 'মুছে ফেলুন'
+    title: '⚠️ ইউজার মুছবেন?',
+    msg: `${name} — এই ইউজারটি স্থায়ীভাবে মুছে যাবে।`,
+    ok: 'হ্যাঁ, মুছে ফেলুন'
   });
   if (!v) return;
 
-  // দ্বিতীয়বার নিশ্চিতকরণ (extra safety)
-  const v2 = await ask({
-    title: '⚠️ নিশ্চিত করুন',
-    msg: 'সত্যিই কি এই ইউজারকে মুছে ফেলতে চান?',
-    fields: [{ label: 'নিশ্চিত করতে "হ্যাঁ" লিখুন', ph: 'হ্যাঁ' }],
-    ok: 'মুছে ফেলুন'
-  });
-  if (!v2) return;
-  if ((v2[0] || '').trim().toLowerCase() !== 'হ্যাঁ' && (v2[0] || '').trim().toLowerCase() !== 'hye' && (v2[0] || '').trim().toLowerCase() !== 'hyan') {
-    return toast('নিশ্চিতকরণ বাতিল', true);
-  }
-
   try {
-    await SB.rpc('admin_user_delete', { p_id: id });
+    await SB.req('/rest/v1/rpc/admin_user_delete', {
+      method: 'POST',
+      body: { p_id: id }
+    });
     toast('ইউজার মুছে ফেলা হয়েছে ✓');
     refreshUserList();
   } catch (e) {
