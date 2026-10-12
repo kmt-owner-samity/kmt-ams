@@ -79,11 +79,11 @@ function renderEditList() {
         </div>
         <div class="fm-field">
           <label>নাম</label>
-          <input type="text" data-role="owner_name" value="${esc(f.owner_name)}" autocomplete="off">
+          <input type="text" data-role="owner_name" value="${esc(f.owner_name)}" maxlength="50" autocomplete="off">
         </div>
         <div class="fm-field">
           <label>মোবাইল</label>
-          <input type="tel" data-role="owner_phone" value="${esc(f.owner_phone)}" placeholder="ঐচ্ছিক" autocomplete="off">
+          <input type="tel" data-role="owner_phone" value="${esc(f.owner_phone)}" maxlength="11" inputmode="numeric" placeholder="১১ ডিজিট" autocomplete="off">
         </div>
 
         <div class="fm-tenant-label">
@@ -92,11 +92,11 @@ function renderEditList() {
         </div>
         <div class="fm-field tenant">
           <label>নাম</label>
-          <input type="text" data-role="tenant_name" value="${esc(f.tenant_name)}" placeholder="খালি রাখলে ভাড়াটিয়া নেই" autocomplete="off">
+          <input type="text" data-role="tenant_name" value="${esc(f.tenant_name)}" maxlength="50" placeholder="খালি রাখলে ভাড়াটিয়া নেই" autocomplete="off">
         </div>
         <div class="fm-field tenant">
           <label>মোবাইল</label>
-          <input type="tel" data-role="tenant_phone" value="${esc(f.tenant_phone)}" placeholder="ঐচ্ছিক" autocomplete="off">
+          <input type="tel" data-role="tenant_phone" value="${esc(f.tenant_phone)}" maxlength="11" inputmode="numeric" placeholder="১১ ডিজিট" autocomplete="off">
         </div>
       </div>
     </div>
