@@ -311,12 +311,13 @@ async function bulkSave() {
     const count = res && res.count ? res.count : payload.length;
     toast(`${bd(count)}টি এন্ট্রি তৈরি হয়েছে ✓`);
 
-    await DB.reload();
+    try { await DB.reload(); } catch (err) { console.error(err); }
     closeBulkSc();
     document.querySelector('nav button[data-v="dash"]').click();
-    await render();
+    try { await render(); } catch (err) { console.error(err); }
   } catch (e) {
     toast(e.message || 'সংরক্ষণ ব্যর্থ', true);
+  } finally {
     btn.disabled = false;
     btn.textContent = lab;
   }
