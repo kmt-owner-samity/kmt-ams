@@ -505,6 +505,7 @@ async function adminAct(k) {
   if (!await adminAuth()) return;
   if (k === 'open') return editOpen();
   if (k === 'sc') return scSetup();
+  if (k === 'bulk-sc') return openBulkSc();
   if (k === 'import') return importLocal();
   if (k === 'users') return openUserManager();
   if (k === 'transfer') return doTransfer();
@@ -718,7 +719,11 @@ if (btnOutEl) btnOutEl.onclick = async () => { await SB.logout(); location.reloa
 })();
 
 /* ===== User Manager Setup ===== */
+/* ===== User Manager Setup ===== */
 if (typeof window.setupUserManager === 'function') window.setupUserManager();
+
+/* ===== Bulk Service Charge Setup ===== */
+if (typeof window.setupBulkSc === 'function') window.setupBulkSc();
 
 /* ===== Legacy import ===== */
 async function importLocal() {
