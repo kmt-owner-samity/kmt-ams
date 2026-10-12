@@ -331,11 +331,6 @@ function setupBulkSc() {
   const xBtn = _b$('bulkScX'); if (xBtn) xBtn.onclick = closeBulkSc;
   const cancelBtn = _b$('bulkCancel'); if (cancelBtn) cancelBtn.onclick = closeBulkSc;
 
-  // Overlay click
-  ov.addEventListener('click', e => {
-    if (e.target.id === 'bulkScOv') closeBulkSc();
-  });
-
   // Bulk actions
   const setDateBtn = _b$('bulkSetAllDate'); if (setDateBtn) setDateBtn.onclick = bulkSetAllDate;
   const setAcctBtn = _b$('bulkSetAllAcct'); if (setAcctBtn) setAcctBtn.onclick = bulkSetAllAcct;
