@@ -203,6 +203,10 @@ async loadProfile() {
     this.clear();
   },
 
+   async rpc(name, body) {
+    return await this.req('/rest/v1/rpc/' + name, { method: 'POST', body });
+  },
+
   async verify(pw) {
     const email = this.sess && this.sess.user && this.sess.user.email;
     if (!email) return false;
