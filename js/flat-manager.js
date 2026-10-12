@@ -4,8 +4,8 @@
    ===================================================================== */
 
 /* ===== State ===== */
-let fmFlats = [];         // [{id, flat_no, floor_no, owner_name, owner_phone, tenant_name, tenant_phone}]
-let fmFilter = 'all';     // 'all' | 'tenant'
+let fmFlats = [];
+let fmFilter = 'all';
 
 const _f$ = id => document.getElementById(id);
 
@@ -17,10 +17,7 @@ async function openFlatManager() {
   if (!ov) return;
   ov.hidden = false;
 
-  // Reset to edit tab
   switchTab('edit');
-
-  // Load data
   await loadFlats();
 }
 
@@ -105,7 +102,6 @@ function renderEditList() {
     </div>
   `).join('');
 
-  // Attach input listeners to update state
   list.querySelectorAll('.fm-item').forEach(el => {
     const flatNo = el.dataset.flatNo;
     const row = fmFlats.find(x => x.flat_no === flatNo);
@@ -119,10 +115,7 @@ function renderEditList() {
 }
 
 /* =====================================================================
-   RENDER — List Tab (Preview A4)
-   ===================================================================== */
-/* =====================================================================
-   RENDER — List Tab (HTML Table + A4 Preview)
+   RENDER — List Tab (HTML Table)
    ===================================================================== */
 function renderListPreview() {
   const preview = _f$('fmPreview');
@@ -137,7 +130,6 @@ function renderListPreview() {
     return;
   }
 
-  // Screen-এ HTML table
   const rows = filtered.map((f, i) => `
     <tr>
       <td class="c">${bd(i + 1)}</td>
@@ -175,7 +167,7 @@ function renderListPreview() {
 }
 
 /* =====================================================================
-   BUILD A4 PDF PAGES (for download/share)
+   BUILD A4 PDF PAGES
    ===================================================================== */
 function buildFlatPdfPages() {
   const filtered = fmFilter === 'tenant'
@@ -189,12 +181,13 @@ function buildFlatPdfPages() {
                   bd(String(today.getMonth() + 1).padStart(2, '0')) + '/' +
                   bd(today.getFullYear());
 
-  // Rows per page
   const ROWS_PER_PAGE = 28;
   const pages = [];
+  const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
 
   for (let i = 0; i < filtered.length; i += ROWS_PER_PAGE) {
     const chunk = filtered.slice(i, i + ROWS_PER_PAGE);
+    const pageNum = Math.floor(i / ROWS_PER_PAGE) + 1;
 
     const rows = chunk.map((f, idx) => `
       <tr>
@@ -228,28 +221,12 @@ function buildFlatPdfPages() {
           </thead>
           <tbody>${rows}</tbody>
         </table>
-        <div class="ft">পৃষ্ঠা ${bd(pages.length + 1)}/${bd(Math.ceil(filtered.length / ROWS_PER_PAGE))} · মোট: ${bd(filtered.length)} টি ফ্ল্যাট · এটি কম্পিউটার সিস্টেম দ্বারা প্রস্তুতকৃত।</div>
+        <div class="ft">পৃষ্ঠা ${bd(pageNum)}/${bd(totalPages)} · মোট: ${bd(filtered.length)} টি ফ্ল্যাট · এটি কম্পিউটার সিস্টেম দ্বারা প্রস্তুতকৃত।</div>
       </div>
     `);
   }
 
   return pages;
-}
-  // Fit A4 to container width
-  if (fit) {
-    const wrap = preview.parentElement;
-    // containerWidth minus padding (40 = 20 left + 20 right)
-    const containerWidth = (wrap ? wrap.clientWidth : 900) - 40;
-    const scale = Math.min(1, containerWidth / 794);
-
-    preview.style.width = '794px';
-    preview.style.transform = `scale(${scale})`;
-    preview.style.transformOrigin = 'top center';
-
-    // fit wrapper holds the scaled content size so flexbox can center
-    fit.style.width = 794 * scale + 'px';
-    fit.style.height = (preview.firstElementChild.offsetHeight || 1123) * scale + 'px';
-  }
 }
 
 /* =====================================================================
@@ -260,11 +237,11 @@ function switchTab(tabName) {
     t.classList.toggle('on', t.dataset.tab === tabName);
   });
   document.querySelectorAll('.fm-panel').forEach(p => {
-    p.classList.toggle('on', p.id === 'fmPanel' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    const id = 'fmPanel' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+    p.classList.toggle('on', p.id === id);
   });
 
   if (tabName === 'list') {
-    // Re-render preview with current data
     renderListPreview();
   }
 }
@@ -297,6 +274,7 @@ async function saveAllFlats() {
   if (!payload.length) {
     return toast('কোনো ফ্ল্যাট নেই', true);
   }
+
   const btn = _f$('flatSave');
   const lab = btn.textContent;
   btn.disabled = true;
@@ -311,25 +289,19 @@ async function saveAllFlats() {
     const count = res && res.count ? res.count : payload.length;
     toast(`${bd(count)}টি ফ্ল্যাট হালনাগাদ হয়েছে ✓`);
 
-    // Reload local DB cache (best-effort)
     try { await DB.loadRef(); } catch (err) { console.error('DB.loadRef failed:', err); }
-
-    // Close modal
     closeFlatManager();
-
-    // Refresh dashboard (best-effort)
     try { if (typeof render === 'function') render(); } catch (err) { console.error('render failed:', err); }
   } catch (e) {
     toast(e.message || 'সংরক্ষণ ব্যর্থ', true);
   } finally {
-    // সবসময় reset
     btn.disabled = false;
     btn.textContent = lab;
   }
-  }
+}
 
 /* =====================================================================
-   SHARE / DOWNLOAD (A4 PDF)
+   SHARE / DOWNLOAD
    ===================================================================== */
 async function fmDownloadPdf() {
   const pages = buildFlatPdfPages();
@@ -358,16 +330,13 @@ function setupFlatManager() {
   const ov = _f$('flatOv');
   if (!ov) return;
 
-  // Close buttons
   const xBtn = _f$('flatX'); if (xBtn) xBtn.onclick = closeFlatManager;
   const cancelBtn = _f$('flatCancel'); if (cancelBtn) cancelBtn.onclick = closeFlatManager;
 
-  // Tab buttons
   document.querySelectorAll('.fm-tab').forEach(t => {
     t.onclick = () => switchTab(t.dataset.tab);
   });
 
-  // Filter buttons (list tab)
   document.querySelectorAll('.fm-filter-btn').forEach(b => {
     b.onclick = () => {
       document.querySelectorAll('.fm-filter-btn').forEach(x => x.classList.remove('on'));
@@ -377,14 +346,10 @@ function setupFlatManager() {
     };
   });
 
-  // Save button
   const saveBtn = _f$('flatSave'); if (saveBtn) saveBtn.onclick = saveAllFlats;
-
-  // Share / Download
   const shareBtn = _f$('fmShare'); if (shareBtn) shareBtn.onclick = fmSharePdf;
   const dlBtn = _f$('fmDownload'); if (dlBtn) dlBtn.onclick = fmDownloadPdf;
 
-  // Escape key
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !ov.hidden) closeFlatManager();
   });
