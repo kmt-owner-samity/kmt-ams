@@ -1328,4 +1328,315 @@ input.english-only::placeholder{
     width: 100% !important;
   }
 }
+/* =====================================================================
+   Phase C — Bulk Service Charge Entry Modal
+   ===================================================================== */
 
+#bulkScOv .invbox{
+  max-width: 760px;
+}
+
+/* ============ TOP CONTROLS ============ */
+.bulk-top-controls{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.bulk-field{
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.bulk-field label{
+  font-size: .78rem;
+  color: var(--mute);
+  font-weight: 500;
+  margin: 0;
+}
+.bulk-field input,
+.bulk-field select{
+  width: 100%;
+  padding: 9px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: .9rem;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+}
+.bulk-field input:focus,
+.bulk-field select:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* ============ BULK BUTTON ROW ============ */
+.bulk-btn-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.btn.sm{
+  padding: 7px 12px;
+  font-size: .82rem;
+  font-weight: 500;
+}
+
+/* ============ FLAT LIST ============ */
+.bulk-list{
+  max-height: 50vh;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 14px;
+}
+
+.bulk-item{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  transition: background .15s;
+  cursor: pointer;
+}
+.bulk-item:last-child{
+  border-bottom: none;
+}
+.bulk-item:hover{
+  background: #f8fafc;
+}
+.bulk-item.checked{
+  background: #f0fdf4;
+}
+.bulk-item.checked:hover{
+  background: #dcfce7;
+}
+
+/* Checkbox */
+.bulk-item .bulk-check{
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.bulk-item .bulk-check input[type="checkbox"]{
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.bulk-item .bulk-check .box{
+  position: absolute;
+  inset: 0;
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  transition: all .15s;
+  pointer-events: none;
+}
+.bulk-item .bulk-check input:checked + .box{
+  background: var(--in);
+  border-color: var(--in);
+}
+.bulk-item .bulk-check input:checked + .box::after{
+  content: '';
+  width: 6px;
+  height: 11px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) translate(-1px, -2px);
+}
+
+/* Info */
+.bulk-item .bulk-info{
+  min-width: 0;
+  flex: 1;
+}
+.bulk-item .bulk-flat{
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.bulk-item .bulk-owner{
+  font-size: .78rem;
+  color: var(--mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inputs */
+.bulk-item .bulk-inputs{
+  display: grid;
+  grid-template-columns: 115px 105px 130px;
+  gap: 8px;
+  align-items: center;
+}
+.bulk-item .bulk-inputs input,
+.bulk-item .bulk-inputs select{
+  padding: 8px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: .85rem;
+  font-family: inherit;
+  transition: border-color .2s;
+  min-width: 0;
+}
+.bulk-item .bulk-inputs input:focus,
+.bulk-item .bulk-inputs select:focus{
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+/* Disabled state */
+.bulk-item:not(.checked) .bulk-inputs{
+  opacity: .4;
+  pointer-events: none;
+}
+
+/* ============ SUMMARY ============ */
+.bulk-summary{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #fff;
+  border-radius: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.bulk-sum-item{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .88rem;
+}
+.bulk-sum-item span{
+  opacity: .8;
+}
+.bulk-sum-item b{
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* ============ SCROLLBAR STYLING ============ */
+.bulk-list::-webkit-scrollbar{
+  width: 8px;
+}
+.bulk-list::-webkit-scrollbar-track{
+  background: transparent;
+}
+.bulk-list::-webkit-scrollbar-thumb{
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.bulk-list::-webkit-scrollbar-thumb:hover{
+  background: #94a3b8;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 700px){
+  .bulk-top-controls{
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bulk-btn-row{
+    gap: 4px;
+  }
+  .btn.sm{
+    font-size: .75rem;
+    padding: 6px 10px;
+  }
+  .bulk-item{
+    grid-template-columns: auto 1fr;
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .bulk-item .bulk-inputs{
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .bulk-item .bulk-inputs select{
+    grid-column: 1 / -1;
+  }
+  .bulk-item .bulk-inputs input,
+  .bulk-item .bulk-inputs select{
+    font-size: 16px;  /* iOS zoom prevent */
+  }
+  .bulk-summary{
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+/* ============ DARK MODE (optional) ============ */
+@media (prefers-color-scheme: dark){
+  .bulk-top-controls{
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .bulk-field input,
+  .bulk-field select,
+  .bulk-item .bulk-inputs input,
+  .bulk-item .bulk-inputs select{
+    background: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+  .bulk-list{
+    background: #0f172a;
+    border-color: #334155;
+  }
+  .bulk-item{
+    border-color: #334155;
+  }
+  .bulk-item:hover{
+    background: #1e293b;
+  }
+  .bulk-item.checked{
+    background: #14532d33;
+  }
+  .bulk-item.checked:hover{
+    background: #14532d66;
+  }
+  .bulk-item .bulk-check .box{
+    background: #0f172a;
+    border-color: #475569;
+  }
+  .bulk-item .bulk-flat{
+    color: #e2e8f0;
+  }
+  .bulk-summary{
+    background: linear-gradient(135deg, #020617, #0f172a);
+  }
+  .bulk-list::-webkit-scrollbar-thumb{
+    background: #334155;
+  }
+}
