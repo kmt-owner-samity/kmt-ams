@@ -179,15 +179,20 @@ function renderListPreview() {
 
   preview.innerHTML = html;
 
-  // Fit A4 to container
+  // Fit A4 to container width
   if (fit) {
     const wrap = preview.parentElement;
-    const containerWidth = wrap ? wrap.clientWidth - 24 : 800;
+    // containerWidth minus padding (40 = 20 left + 20 right)
+    const containerWidth = (wrap ? wrap.clientWidth : 900) - 40;
     const scale = Math.min(1, containerWidth / 794);
+
     preview.style.width = '794px';
     preview.style.transform = `scale(${scale})`;
+    preview.style.transformOrigin = 'top center';
+
+    // fit wrapper holds the scaled content size so flexbox can center
     fit.style.width = 794 * scale + 'px';
-    fit.style.height = preview.firstElementChild.offsetHeight * scale + 'px';
+    fit.style.height = (preview.firstElementChild.offsetHeight || 1123) * scale + 'px';
   }
 }
 
