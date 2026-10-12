@@ -1875,10 +1875,17 @@ input.english-only::placeholder{
   border-radius: 10px;
   background: #fff;
 }
-#fmFit,
-#fmPreview{
+#fmFit{
   /* Legacy — এখন ব্যবহার হচ্ছে না */
   display: none;
+}
+
+#fmPreview{
+  display: block;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+  width: auto;
 }
 
 /* ============ HTML SCREEN TABLE ============ */
