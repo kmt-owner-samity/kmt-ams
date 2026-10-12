@@ -327,10 +327,19 @@
         <label for="bulkMonth">মাস</label>
         <input type="month" id="bulkMonth">
       </div>
-      <div class="bulk-field">
-        <label for="bulkDate">ডিফল্ট তারিখ</label>
-        <input type="text" id="bulkDate" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY" autocomplete="off">
-      </div>
+<div class="bulk-field">
+  <label for="bulkDate">ডিফল্ট তারিখ</label>
+  <div class="dwrap" style="margin:0">
+    <input type="text" id="bulkDate" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY" autocomplete="off">
+    <span class="cal">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/>
+        <path d="M3 10h18M8 3v4M16 3v4"/>
+      </svg>
+    </span>
+    <input type="date" id="bulkDatePick" class="dpk" aria-label="ক্যালেন্ডার থেকে বাছুন">
+  </div>
+</div>
       <div class="bulk-field">
         <label for="bulkAcct">ডিফল্ট পেমেন্ট</label>
         <select id="bulkAcct">
