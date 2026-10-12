@@ -305,6 +305,70 @@
     </div>
   </div>
 </div>
+     <!-- ===================================================================
+     BULK SERVICE CHARGE ENTRY
+     =================================================================== -->
+<div class="ov" id="bulkScOv" hidden>
+  <div class="invbox" style="max-width:720px;width:100%">
+    <!-- Header -->
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <h2 style="margin:0">📊 বাল্ক সার্ভিস চার্জ এন্ট্রি</h2>
+        <p style="margin:4px 0 0;color:var(--mute);font-size:.85rem">
+          একসাথে অনেক ফ্ল্যাটের সার্ভিস চার্জ এন্ট্রি করুন
+        </p>
+      </div>
+      <button class="btn ghost" id="bulkScX" type="button">বন্ধ করুন</button>
+    </div>
+
+    <!-- Top Controls -->
+    <div class="bulk-top-controls">
+      <div class="bulk-field">
+        <label for="bulkMonth">মাস</label>
+        <input type="month" id="bulkMonth">
+      </div>
+      <div class="bulk-field">
+        <label for="bulkDate">ডিফল্ট তারিখ</label>
+        <input type="text" id="bulkDate" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY" autocomplete="off">
+      </div>
+      <div class="bulk-field">
+        <label for="bulkAcct">ডিফল্ট পেমেন্ট</label>
+        <select id="bulkAcct">
+          <option value="">বাছাই করুন</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bulk-btn-row">
+      <button type="button" class="btn ghost sm" id="bulkSetAllDate">📅 সবাইকে এই তারিখ দিন</button>
+      <button type="button" class="btn ghost sm" id="bulkSetAllAcct">💳 সবাইকে এই payment দিন</button>
+      <button type="button" class="btn ghost sm" id="bulkSelectAll">✅ সব বাছাই</button>
+      <button type="button" class="btn ghost sm" id="bulkDeselectAll">☐ সব বাতিল</button>
+    </div>
+
+    <!-- Flat List -->
+    <div class="bulk-list" id="bulkList">
+      <div class="empty">লোড হচ্ছে...</div>
+    </div>
+
+    <!-- Summary + Footer -->
+    <div class="bulk-summary" id="bulkSummary">
+      <div class="bulk-sum-item">
+        <span>মোট বাছাই:</span>
+        <b id="bulkCount">০</b>
+      </div>
+      <div class="bulk-sum-item">
+        <span>মোট পরিমাণ:</span>
+        <b id="bulkTotal">৳ ০</b>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end;margin-top:14px;gap:8px">
+      <button class="btn ghost" id="bulkCancel" type="button">বাতিল</button>
+      <button class="btn" id="bulkSave" type="button" style="--acc:var(--ink)">এন্ট্রি তৈরি করুন</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===================================================================
      LOGIN
