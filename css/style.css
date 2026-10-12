@@ -1876,8 +1876,8 @@ input.english-only::placeholder{
   background: #fff;
 }
 #fmFit{
-  /* Legacy — এখন ব্যবহার হচ্ছে না */
-  display: none;
+  display: block;
+  width: 100%;
 }
 
 #fmPreview{
