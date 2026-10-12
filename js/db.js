@@ -256,9 +256,9 @@ async loadProfile() {
     });
   },
 
-  async adminUserList() {
-    return await this.req('/rest/v1/profiles?select=id,login_id,full_name,role,is_active,created_at&order=full_name');
-  },
+async adminUserList() {
+  return await this.req('/rest/v1/rpc/admin_user_list', { method: 'POST', body: {} });
+},
 };
 
 /* =====================================================================
