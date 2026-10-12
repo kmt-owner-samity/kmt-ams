@@ -241,7 +241,6 @@ async function saveAllFlats() {
   if (!payload.length) {
     return toast('কোনো ফ্ল্যাট নেই', true);
   }
-
   const btn = _f$('flatSave');
   const lab = btn.textContent;
   btn.disabled = true;
@@ -256,25 +255,22 @@ async function saveAllFlats() {
     const count = res && res.count ? res.count : payload.length;
     toast(`${bd(count)}টি ফ্ল্যাট হালনাগাদ হয়েছে ✓`);
 
-    // Reload local DB cache
-    await DB.loadRef();
-
-    // Update config-based FLATS to reflect new tenant/owner (for display)
-    // ⚠️ FLATS is const — but its objects are mutable
-    // (Alternative: rely on DB.flats — but app.js still uses FLATS)
-    // We'll keep FLATS as-is for now; DB.flats will be the source.
+    // Reload local DB cache (best-effort)
+    try { await DB.loadRef(); } catch (err) { console.error('DB.loadRef failed:', err); }
 
     // Close modal
     closeFlatManager();
 
-    // Refresh main UI
-    if (typeof render === 'function') render();
+    // Refresh dashboard (best-effort)
+    try { if (typeof render === 'function') render(); } catch (err) { console.error('render failed:', err); }
   } catch (e) {
     toast(e.message || 'সংরক্ষণ ব্যর্থ', true);
+  } finally {
+    // সবসময় reset
     btn.disabled = false;
     btn.textContent = lab;
   }
-}
+  }
 
 /* =====================================================================
    SHARE / DOWNLOAD (A4 PDF)
