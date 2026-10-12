@@ -1640,3 +1640,15 @@ input.english-only::placeholder{
     background: #334155;
   }
 }
+
+/* Bulk top date — special sizing */
+.bulk-field .dwrap input[type="text"]{
+  padding-right: 40px;
+}
+.bulk-field .dwrap .cal{
+  right: 4px;
+}
+.bulk-field .dwrap .cal svg{
+  width: 18px;
+  height: 18px;
+}
