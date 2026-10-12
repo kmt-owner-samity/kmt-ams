@@ -186,13 +186,17 @@ const SB = {
     }
   },
 
-  async loadProfile() {
-    const p = await this.req('/rest/v1/profiles?id=eq.' + this.uid() + '&select=full_name,role,is_active');
-    if (!p || !p[0] || !p[0].is_active) {
-      throw new DbError('এই অ্যাকাউন্টে এখনও কোনো ভূমিকা (role) দেওয়া হয়নি। অ্যাডমিনকে জানান।', 403);
-    }
-    this.profile = p[0];
-  },
+async loadProfile() {
+  const p = await this.req('/rest/v1/profiles?id=eq.' + this.uid() + '&select=login_id,full_name,role,is_active');
+  if (!p || !p[0] || !p[0].is_active) {
+    throw new DbError('এই অ্যাকাউন্টে এখনও কোনো ভূমিকা (role) দেওয়া হয়নি। অ্যাডমিনকে জানান।', 403);
+  }
+  this.profile = p[0];
+  // Email from session
+  if (this.sess && this.sess.user && this.sess.user.email) {
+    this.profile.email = this.sess.user.email;
+  }
+},
 
   async logout() {
     try { await this.raw('/auth/v1/logout', { method: 'POST', body: {} }); } catch (e) {}
