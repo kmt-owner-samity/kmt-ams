@@ -6,12 +6,11 @@
    ===================================================================== */
 
 /* ===== State ===== */
-let bulkSel = {};   // { flatNo: {checked, date, amount, acct} }
+let bulkSel = {};
 
 /* ===== Helpers ===== */
 const _b$ = id => document.getElementById(id);
 
-/* ===== Date: DD/MM/YYYY ===== */
 function _bParseDMY(v) {
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(v).trim());
   if (!m) return '';
@@ -29,47 +28,50 @@ function _bTodayISO() {
   const d = new Date(), z = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
 }
+function _bMaskDMY(v) {
+  const raw = String(v).replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/\D/g, '').slice(0, 8);
+  if (raw.length > 4) return raw.slice(0, 2) + '/' + raw.slice(2, 4) + '/' + raw.slice(4);
+  if (raw.length > 2) return raw.slice(0, 2) + '/' + raw.slice(2);
+  return raw;
+}
 
 /* ===== Open / Close ===== */
 function openBulkSc() {
   const ov = _b$('bulkScOv');
   if (!ov) return;
 
-  // 1. Month default = previous month
+  // Month default = previous month
   const d = new Date();
   const prev = new Date(d.getFullYear(), d.getMonth() - 1, 1);
   const prevYM = prev.getFullYear() + '-' + String(prev.getMonth() + 1).padStart(2, '0');
   _b$('bulkMonth').value = prevYM;
 
-  // 2. Date default = today
-  _b$('bulkDate').value = _bFmtDMY(_bTodayISO());
+  // Date default = today
+  const todayISO = _bTodayISO();
+  _b$('bulkDate').value = _bFmtDMY(todayISO);
+  _b$('bulkDatePick').value = todayISO;
 
-  // 3. Payment options from ACCTS
+  // Payment options
   _b$('bulkAcct').innerHTML = '<option value="">বাছাই করুন</option>' +
     ACCTS.map(a => `<option value="${a.k}">${a.s}</option>`).join('');
   _b$('bulkAcct').value = 'cash';
 
-  // 4. Init state
+  // Init state
   bulkSel = {};
   const defAcct = 'cash';
-  const defDate = _bTodayISO();
 
-  // 5. Build state from FLATS
   FLATS.forEach(x => {
     const rate = expAmt(x.f);
     bulkSel[x.f] = {
       checked: true,
-      date: defDate,
+      date: todayISO,
       amount: rate > 0 ? rate : '',
       acct: defAcct,
       owner: x.o,
     };
   });
 
-  // 6. Render list
   renderBulkList();
-
-  // 7. Show modal
   ov.hidden = false;
   _b$('bulkList').scrollTop = 0;
 }
@@ -80,7 +82,7 @@ function closeBulkSc() {
   bulkSel = {};
 }
 
-/* ===== Render ===== */
+/* ===== Render list ===== */
 function renderBulkList() {
   const box = _b$('bulkList');
   if (!box) return;
@@ -93,7 +95,6 @@ function renderBulkList() {
 
     const checked = s.checked ? 'checked' : '';
     const cls = s.checked ? 'checked' : '';
-    const disabled = !s.checked;
 
     return `
       <div class="bulk-item ${cls}" data-flat="${esc(x.f)}">
@@ -106,8 +107,17 @@ function renderBulkList() {
           <div class="bulk-owner">${esc(x.o)}</div>
         </div>
         <div class="bulk-inputs">
-          <input type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY"
-                 value="${_bFmtDMY(s.date)}" data-role="date" autocomplete="off">
+          <div class="dwrap" style="margin:0">
+            <input type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY"
+                   value="${_bFmtDMY(s.date)}" data-role="date" autocomplete="off">
+            <span class="cal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M3 10h18M8 3v4M16 3v4"/>
+              </svg>
+            </span>
+            <input type="date" class="dpk" data-role="datepick" value="${s.date}" aria-label="ক্যালেন্ডার">
+          </div>
           <input type="number" min="0" step="any" inputmode="decimal"
                  placeholder="৳" value="${s.amount || ''}" data-role="amount">
           <select data-role="acct">
@@ -123,6 +133,8 @@ function renderBulkList() {
   // Attach events
   box.querySelectorAll('.bulk-item').forEach(el => {
     const flat = el.dataset.flat;
+    const dateInput = el.querySelector('[data-role="date"]');
+    const datePicker = el.querySelector('[data-role="datepick"]');
 
     // Checkbox
     el.querySelector('[data-role="check"]').addEventListener('change', e => {
@@ -131,18 +143,25 @@ function renderBulkList() {
       updateBulkSummary();
     });
 
-    // Date
-    const dateInput = el.querySelector('[data-role="date"]');
+    // Date text input
     dateInput.addEventListener('input', () => {
-      const raw = dateInput.value.replace(/[০-৯]/g, c => '০১২৩৪৫৬৭৮৯'.indexOf(c)).replace(/\D/g, '').slice(0, 8);
-      dateInput.value = raw.length > 4
-        ? raw.slice(0, 2) + '/' + raw.slice(2, 4) + '/' + raw.slice(4)
-        : raw.length > 2
-          ? raw.slice(0, 2) + '/' + raw.slice(2)
-          : raw;
+      dateInput.value = _bMaskDMY(dateInput.value);
       const iso = _bParseDMY(dateInput.value);
-      if (iso) bulkSel[flat].date = iso;
+      if (iso) {
+        bulkSel[flat].date = iso;
+        if (datePicker) datePicker.value = iso;
+      }
     });
+
+    // Date picker (native calendar)
+    if (datePicker) {
+      datePicker.addEventListener('change', () => {
+        if (datePicker.value) {
+          bulkSel[flat].date = datePicker.value;
+          dateInput.value = _bFmtDMY(datePicker.value);
+        }
+      });
+    }
 
     // Amount
     el.querySelector('[data-role="amount"]').addEventListener('input', e => {
@@ -176,7 +195,6 @@ function updateBulkSummary() {
   if (cntEl) cntEl.textContent = bd(count);
   if (totEl) totEl.textContent = tk(total);
 
-  // Save button label
   const saveBtn = _b$('bulkSave');
   if (saveBtn) {
     saveBtn.textContent = count > 0
@@ -221,7 +239,6 @@ function bulkDeselectAll() {
 
 /* ===== Save ===== */
 async function bulkSave() {
-  // Collect checked items
   const items = [];
   const errors = [];
 
@@ -229,20 +246,10 @@ async function bulkSave() {
     const s = bulkSel[flat];
     if (!s.checked) return;
 
-    // Validate
     const iso = _bParseDMY(_bFmtDMY(s.date));
-    if (!iso) {
-      errors.push(`${flat}: তারিখ ভুল`);
-      return;
-    }
-    if (!(s.amount > 0)) {
-      errors.push(`${flat}: পরিমাণ দিন`);
-      return;
-    }
-    if (!s.acct) {
-      errors.push(`${flat}: Payment বাছাই করুন`);
-      return;
-    }
+    if (!iso) { errors.push(`${flat}: তারিখ ভুল`); return; }
+    if (!(s.amount > 0)) { errors.push(`${flat}: পরিমাণ দিন`); return; }
+    if (!s.acct) { errors.push(`${flat}: Payment বাছাই করুন`); return; }
 
     items.push({
       flat,
@@ -260,12 +267,10 @@ async function bulkSave() {
     return toast('কোনো ফ্ল্যাট বাছাই করা হয়নি', true);
   }
 
-  // Month (for service_charge_months)
   const ym = _b$('bulkMonth').value;
   if (!ym) return toast('মাস বাছাই করুন', true);
   const monthFirstDay = ym + '-01';
 
-  // Build payload
   const catId = DB.catTop['income|মাসিক সার্ভিস চার্জ'];
   const subId = catId && DB.catSub[catId + '|ফ্ল্যাটের সার্ভিস চার্জ'];
   if (!catId || !subId) {
@@ -292,7 +297,6 @@ async function bulkSave() {
     };
   });
 
-  // Save
   const btn = _b$('bulkSave');
   const lab = btn.textContent;
   btn.disabled = true;
@@ -307,13 +311,8 @@ async function bulkSave() {
     const count = res && res.count ? res.count : payload.length;
     toast(`${bd(count)}টি এন্ট্রি তৈরি হয়েছে ✓`);
 
-    // Reload data
     await DB.reload();
-
-    // Close modal
     closeBulkSc();
-
-    // Go to dashboard + render
     document.querySelector('nav button[data-v="dash"]').click();
     await render();
   } catch (e) {
@@ -328,7 +327,7 @@ function setupBulkSc() {
   const ov = _b$('bulkScOv');
   if (!ov) return;
 
-  // Close buttons
+  // Close
   const xBtn = _b$('bulkScX'); if (xBtn) xBtn.onclick = closeBulkSc;
   const cancelBtn = _b$('bulkCancel'); if (cancelBtn) cancelBtn.onclick = closeBulkSc;
 
@@ -337,16 +336,35 @@ function setupBulkSc() {
     if (e.target.id === 'bulkScOv') closeBulkSc();
   });
 
-  // Bulk buttons
+  // Bulk actions
   const setDateBtn = _b$('bulkSetAllDate'); if (setDateBtn) setDateBtn.onclick = bulkSetAllDate;
   const setAcctBtn = _b$('bulkSetAllAcct'); if (setAcctBtn) setAcctBtn.onclick = bulkSetAllAcct;
   const selAllBtn = _b$('bulkSelectAll'); if (selAllBtn) selAllBtn.onclick = bulkSelectAll;
   const deselAllBtn = _b$('bulkDeselectAll'); if (deselAllBtn) deselAllBtn.onclick = bulkDeselectAll;
 
-  // Save button
+  // Save
   const saveBtn = _b$('bulkSave'); if (saveBtn) saveBtn.onclick = bulkSave;
 
-  // Escape key
+  // ===== TOP DATE INPUT =====
+  const topDateInput = _b$('bulkDate');
+  const topDatePicker = _b$('bulkDatePick');
+
+  if (topDateInput) {
+    topDateInput.addEventListener('input', () => {
+      topDateInput.value = _bMaskDMY(topDateInput.value);
+      const iso = _bParseDMY(topDateInput.value);
+      if (iso && topDatePicker) topDatePicker.value = iso;
+    });
+  }
+  if (topDatePicker) {
+    topDatePicker.addEventListener('change', () => {
+      if (topDatePicker.value && topDateInput) {
+        topDateInput.value = _bFmtDMY(topDatePicker.value);
+      }
+    });
+  }
+
+  // Escape
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !ov.hidden) closeBulkSc();
   });
