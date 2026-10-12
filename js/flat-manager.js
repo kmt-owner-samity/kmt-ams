@@ -121,9 +121,11 @@ function renderEditList() {
 /* =====================================================================
    RENDER — List Tab (Preview A4)
    ===================================================================== */
+/* =====================================================================
+   RENDER — List Tab (HTML Table + A4 Preview)
+   ===================================================================== */
 function renderListPreview() {
   const preview = _f$('fmPreview');
-  const fit = _f$('fmFit');
   if (!preview) return;
 
   const filtered = fmFilter === 'tenant'
@@ -132,53 +134,107 @@ function renderListPreview() {
 
   if (!filtered.length) {
     preview.innerHTML = '<div class="empty">কোনো তথ্য নেই</div>';
-    if (fit) { fit.style.width = 'auto'; fit.style.height = 'auto'; }
     return;
   }
+
+  // Screen-এ HTML table
+  const rows = filtered.map((f, i) => `
+    <tr>
+      <td class="c">${bd(i + 1)}</td>
+      <td class="c"><b>${esc(f.flat_no)}</b></td>
+      <td>${esc(f.owner_name)}</td>
+      <td class="nowrap">${esc(f.owner_phone || '—')}</td>
+      <td>${esc(f.tenant_name || '—')}</td>
+      <td class="nowrap">${esc(f.tenant_phone || '—')}</td>
+    </tr>
+  `).join('');
+
+  preview.innerHTML = `
+    <div class="fm-screen-table">
+      <div class="fm-screen-table-head">
+        <div class="fm-screen-table-title">মালিক ও ভাড়াটিয়া তালিকা</div>
+        <div class="fm-screen-table-count">মোট: ${bd(filtered.length)} টি ফ্ল্যাট</div>
+      </div>
+      <div class="fm-table-wrap">
+        <table class="fm-table">
+          <thead>
+            <tr>
+              <th style="width:50px">ক্রঃ</th>
+              <th style="width:70px">ফ্ল্যাট</th>
+              <th>মালিকের নাম</th>
+              <th style="width:140px">মোবাইল</th>
+              <th>ভাড়াটিয়ার নাম</th>
+              <th style="width:140px">মোবাইল</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* =====================================================================
+   BUILD A4 PDF PAGES (for download/share)
+   ===================================================================== */
+function buildFlatPdfPages() {
+  const filtered = fmFilter === 'tenant'
+    ? fmFlats.filter(f => f.tenant_name && f.tenant_name.trim())
+    : fmFlats;
+
+  if (!filtered.length) return [];
 
   const today = new Date();
   const dateStr = bd(String(today.getDate()).padStart(2, '0')) + '/' +
                   bd(String(today.getMonth() + 1).padStart(2, '0')) + '/' +
                   bd(today.getFullYear());
 
-  const rows = filtered.map((f, i) => `
-    <tr>
-      <td class="c">${bd(i + 1)}</td>
-      <td><b>${esc(f.flat_no)}</b></td>
-      <td>${esc(f.owner_name)}</td>
-      <td>${esc(f.owner_phone || '—')}</td>
-      <td>${esc(f.tenant_name || '—')}</td>
-      <td>${esc(f.tenant_phone || '—')}</td>
-    </tr>
-  `).join('');
+  // Rows per page
+  const ROWS_PER_PAGE = 28;
+  const pages = [];
 
-  const html = `
-    <div class="a4 tight">
-      <div class="ah">
-        <b>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</b>
-        <span>বাসা নং ৩/৪, ব্লক-এ, আসাদ এভিনিউ, ঢাকা-১২০৭</span>
+  for (let i = 0; i < filtered.length; i += ROWS_PER_PAGE) {
+    const chunk = filtered.slice(i, i + ROWS_PER_PAGE);
+
+    const rows = chunk.map((f, idx) => `
+      <tr>
+        <td class="c">${bd(i + idx + 1)}</td>
+        <td class="c"><b>${esc(f.flat_no)}</b></td>
+        <td>${esc(f.owner_name)}</td>
+        <td class="nowrap">${esc(f.owner_phone || '—')}</td>
+        <td>${esc(f.tenant_name || '—')}</td>
+        <td class="nowrap">${esc(f.tenant_phone || '—')}</td>
+      </tr>
+    `).join('');
+
+    pages.push(`
+      <div class="a4 tight">
+        <div class="ah">
+          <b>কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি</b>
+          <span>বাসা নং ৩/৪, ব্লক-এ, আসাদ এভিনিউ, ঢাকা-১২০৭</span>
+        </div>
+        <div class="mt">মালিক ও ভাড়াটিয়া তালিকা</div>
+        <h3 class="sh">তারিখ: ${dateStr}${fmFilter === 'tenant' ? ' — শুধু ভাড়াটিয়া' : ''}</h3>
+        <table class="at mx">
+          <thead>
+            <tr>
+              <th style="width:45px">ক্রঃ</th>
+              <th style="width:60px">ফ্ল্যাট</th>
+              <th>মালিকের নাম</th>
+              <th style="width:130px">মোবাইল</th>
+              <th>ভাড়াটিয়ার নাম</th>
+              <th style="width:130px">মোবাইল</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="ft">পৃষ্ঠা ${bd(pages.length + 1)}/${bd(Math.ceil(filtered.length / ROWS_PER_PAGE))} · মোট: ${bd(filtered.length)} টি ফ্ল্যাট · এটি কম্পিউটার সিস্টেম দ্বারা প্রস্তুতকৃত।</div>
       </div>
-      <div class="mt">মালিক ও ভাড়াটিয়া তালিকা</div>
-      <h3 class="sh">তারিখ: ${dateStr}${fmFilter === 'tenant' ? ' — শুধু ভাড়াটিয়া' : ''}</h3>
-      <table class="at">
-        <thead>
-          <tr>
-            <th style="width:50px">ক্রঃ</th>
-            <th style="width:70px">ফ্ল্যাট</th>
-            <th>মালিকের নাম</th>
-            <th style="width:140px">মালিকের মোবাইল</th>
-            <th>ভাড়াটিয়ার নাম</th>
-            <th style="width:140px">ভাড়াটিয়ার মোবাইল</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-      <div class="ft">মোট: ${bd(filtered.length)} টি ফ্ল্যাট · এটি কম্পিউটার সিস্টেম দ্বারা প্রস্তুতকৃত।</div>
-    </div>
-  `;
+    `);
+  }
 
-  preview.innerHTML = html;
-
+  return pages;
+}
   // Fit A4 to container width
   if (fit) {
     const wrap = preview.parentElement;
@@ -276,21 +332,15 @@ async function saveAllFlats() {
    SHARE / DOWNLOAD (A4 PDF)
    ===================================================================== */
 async function fmDownloadPdf() {
-  const preview = _f$('fmPreview');
-  if (!preview || !preview.firstElementChild) {
-    return toast('প্রথমে তালিকা দেখুন', true);
-  }
-  const pages = [preview.innerHTML];
+  const pages = buildFlatPdfPages();
+  if (!pages.length) return toast('কোনো তথ্য নেই', true);
   const name = 'malik-talika-' + _fTodayName() + '.pdf';
   await pdfOut(pages, name);
 }
 
 async function fmSharePdf() {
-  const preview = _f$('fmPreview');
-  if (!preview || !preview.firstElementChild) {
-    return toast('প্রথমে তালিকা দেখুন', true);
-  }
-  const pages = [preview.innerHTML];
+  const pages = buildFlatPdfPages();
+  if (!pages.length) return toast('কোনো তথ্য নেই', true);
   const name = 'malik-talika-' + _fTodayName() + '.pdf';
   await pdfShare(pages, name);
 }
