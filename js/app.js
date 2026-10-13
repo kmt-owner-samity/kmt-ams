@@ -31,6 +31,7 @@ function dbFail(e) {
 document.documentElement.classList.add('no-role');
 
 /* ট্যাব */
+/* ট্যাব */
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   if (editId) resetForm();
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
@@ -43,6 +44,10 @@ document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   if (am) {
     const isAdmin = SB.profile && SB.profile.role === 'admin';
     am.hidden = !isAdmin || view !== 'dash';
+  }
+  // Entry form-এ category dropdown refresh
+  if (view === 'add' && typeof setType === 'function') {
+    try { setType(); } catch (e) { /* silent */ }
   }
 });
 
