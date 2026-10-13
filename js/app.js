@@ -177,7 +177,14 @@ const gEl = $('g'); if (gEl) gEl.onchange = setSub;
 const sEl = $('s'); if (sEl) sEl.onchange = updSc;
 const flEl = $('fl');
 if (flEl) {
-  flEl.innerHTML = '<option value="">ফ্ল্যাট বাছাই করুন</option>' + FLATS.map(x => `<option>${x.f}</option>`).join('');
+  flEl.innerHTML = '<option value="">ফ্ল্যাট বাছাই করুন</option>' + FLATS.map(x => {
+    const owner = x.owner_name || x.o || '';
+    const tenant = x.tenant_name || '';
+    const label = owner
+      ? `${x.f} — ${owner}${tenant ? ` (ভাড়াটিয়াঃ ${tenant})` : ''}`
+      : x.f;
+    return `<option value="${esc(x.f)}">${esc(label)}</option>`;
+  }).join('');
   flEl.onchange = () => { if (editId) delete $('a').dataset.man; showOwner(); };
 }
 
