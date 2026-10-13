@@ -97,7 +97,7 @@ function scSetup(){$('scDef').value=scCfg.def||'';
  scTot();$('scOv').hidden=false;document.querySelector('#scOv .invbox').scrollTop=0}
 async function scSave(){const per={};document.querySelectorAll('#scRows input').forEach(i=>{if(i.value!=='')per[i.dataset.f]=+i.value});
  try{await DB.setSc({def:+$('scDef').value||0,per})}catch(e){return dbFail(e)}
- scCfg=await DB.sc();$('scOv').hidden=true;toast('Supabase-এ সার্ভিস চার্জ সেটআপ সংরক্ষিত ✓');render()}
+ scCfg=await DB.sc();$('scOv').hidden=true;toast('সার্ভিস চার্জ সেটআপ সংরক্ষিত হয়েছে ✓');render()}
 function initReports(){
  $('repBar').innerHTML=REPS.map((r,i)=>`<button type="button" class="rbtn" data-i="${i}"><em style="background:${r.b};color:${r.c}">${svg('<path d="'+r.i+'"/>',18)}</em>${r.t}</button>`).join('');
  $('repBar').addEventListener('click',e=>{const b=e.target.closest('.rbtn');if(!b)return;const r=REPS[+b.dataset.i];openPrev(r.f(),r.k+'-'+$('month').value+'.pdf')});
