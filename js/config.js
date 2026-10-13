@@ -132,3 +132,36 @@ const CATS = {
     'অন্যান্য': ['নির্মাণ সামগ্রী (ইট, বালু, সিমেন্ট)', 'হার্ডওয়্যার ও স্যানিটারী সামগ্রী', 'পরিবহন ও ভ্যান/গাড়ি ভাড়া', 'আপৎকালীন/জরুরি মেরামত', 'ডোনেশন/চাঁদা/কমিউনিটি ফি', 'ব্যাংক চার্জ/অন্যান্য সার্ভিস ফি']
   }
 };
+
+/* =====================================================================
+   CATS Sync — DB থেকে categories load করে CATS update
+   ⚠️ Existing CATS structure অক্ষত রাখে
+   ===================================================================== */
+function syncCatsFromDb(dbCats) {
+  if (!Array.isArray(dbCats)) return;
+
+  // ১. CATS-এর সব key মুছি
+  Object.keys(CATS.income || {}).forEach(k => delete CATS.income[k]);
+  Object.keys(CATS.expense || {}).forEach(k => delete CATS.expense[k]);
+
+  // ২. DB থেকে parent + child map বানাই
+  const parents = dbCats.filter(c => !c.parent_id);
+  const children = dbCats.filter(c => c.parent_id);
+
+  parents.forEach(p => {
+    // kind অনুযায়ী
+    if (!CATS[p.kind]) CATS[p.kind] = {};
+    // Parent name key — CATS-এ English key না, বাংলা নাম
+    const parentName = p.name;
+    CATS[p.kind][parentName] = [];
+
+    // Children
+    const myChildren = children
+      .filter(c => c.parent_id === p.id)
+      .sort((a, b) => (a.sort_order - b.sort_order) || (a.id - b.id));
+
+    myChildren.forEach(c => {
+      CATS[p.kind][parentName].push(c.name);
+    });
+  });
+}
