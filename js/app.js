@@ -678,6 +678,15 @@ function showLogin(msg, err) {
   lo.hidden = false;
   const lm = $('loginMsg'); if (lm) { lm.textContent = msg || ''; lm.className = err ? 'lerr' : ''; }
   const lp = $('lpw'); if (lp) lp.value = '';
+
+  // Animation trigger — class remove + reflow + add
+  const box = lo.querySelector('.box');
+  if (box) {
+    box.classList.remove('animate-in');
+    // Force browser reflow
+    void box.offsetWidth;
+    box.classList.add('animate-in');
+  }
 }
 function hideLogin() { const lo = $('loginOv'); if (lo) lo.hidden = true; }
 
