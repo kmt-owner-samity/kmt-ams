@@ -409,7 +409,8 @@ nav button.on{
 
 /* ============ MONTH SLIDER ============ */
 .slider{
-  display:flex;
+  display:grid;
+  grid-template-columns:40px 1fr 40px;
   gap:6px;
   align-items:center;
   width:100%;
