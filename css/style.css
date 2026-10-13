@@ -2122,20 +2122,20 @@ body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
   }
 }
 /* =====================================================================
-   LOGIN — Safe animations (only fade + slide)
+   LOGIN — Simple fade-in (no JS, no class trigger)
    ===================================================================== */
 
-.login .box{
-  animation: loginCardFadeIn 0.6s cubic-bezier(.4,0,.2,1);
-}
-
-@keyframes loginCardFadeIn{
+@keyframes loginFadeIn{
   from{
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(15px);
   }
   to{
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+#loginOv .box{
+  animation: loginFadeIn 0.5s ease-out;
 }
