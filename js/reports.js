@@ -18,7 +18,7 @@ function paged(title,sub,thead,trs,o={}){const host=$('cap'),H=1123,cls=o.cls?' 
 /* লেনদেনের লগ */
 function logReport(){const c=calc(),trs=[];
  [...c.cur].sort(byDate).forEach(t=>{const inc=t.type==='income',tr=t.type==='transfer';
-  trs.push(`<tr><td>${bnDate(t.date)}</td><td>${tr?'ট্রান্সফার':inc?'আয়':'ব্যয়'}</td><td>${esc(t.group)}<br><small>${subOf(t)}${t.owner?' · '+esc(t.owner):''}</small></td><td class="n">${tr?'':inc?'+ ':'− '}${tk(t.amount)}</td></tr>`)});
+trs.push(`<tr><td>${bnDate(t.date)}</td><td>${tr?'ট্রান্সফার':inc?'আয়':'ব্যয়'}</td><td>${esc(t.group)}<br><small>${subOf(t)}</small></td><td class="n">${tr?'':inc?'+ ':'− '}${tk(t.amount)}</td></tr>`)});
  if(!trs.length)trs.push('<tr><td colspan="4" class="c">এই মাসে কোনো লেনদেন নেই</td></tr>');
  return paged('লেনদেনের বিস্তারিত',monthTitle(c.m),'<tr><th style="width:105px">তারিখ</th><th style="width:70px">ধরণ</th><th>খাত / বিবরণ</th><th class="n" style="width:140px">পরিমাণ</th></tr>',trs)}
 
@@ -40,7 +40,7 @@ function scMonthReport(){const c=calc(),ym=prevOf(c.m),pay={};
  const trs=FLATS.map((x,i)=>{const p=pay[x.f],e=expAmt(x.f),paid=p?p.amt:0;
   const st=e>0?(paid>=e-0.005?'p':paid>0?'h':'d'):(paid>0?'p':'d');
   if(st==='p')np++;else nd++;col+=paid;const dv=e>0?Math.max(e-paid,0):0;due+=dv;
-  return `<tr><td class="c">${bd(i+1)}</td><td>${x.f}</td><td>${esc(x.o)}</td><td class="c"><span class="stt ${st}">${LB[st]}</span></td><td class="n">${paid?tk(paid):'—'}</td><td class="n">${e>0?(dv?tk(dv):'—'):'—'}</td><td>${p?bnDate(p.last).replace(' ইং','')+' · '+AN(p.acct).replace(' ব্যাংক',''):''}</td></tr>`});
+return `<tr><td class="c">${bd(i+1)}</td><td>${x.f}</td><td>${esc(flatOwnerDisplay(x.f))}</td><td class="c"><span class="stt ${st}">${LB[st]}</span></td><td class="n">${paid?tk(paid):'—'}</td><td class="n">${e>0?(dv?tk(dv):'—'):'—'}</td><td>${p?bnDate(p.last).replace(' ইং','')+' · '+AN(p.acct).replace(' ব্যাংক',''):''}</td></tr>`});
  const pre=`<div class="strip"><div><span>মোট ফ্ল্যাট</span><b>${bd(FLATS.length)}</b></div><div><span>পরিশোধিত</span><b class="g">${bd(np)}</b></div><div><span>বাকি</span><b class="r">${bd(nd)}</b></div><div><span>মোট আদায়</span><b class="g">${tk(col)}</b></div>${hasExp?`<div><span>মোট বাকি</span><b class="r">${tk(due)}</b></div>`:''}</div>${hasExp?'':'<p class="note">মাসিক সার্ভিস চার্জের অঙ্ক সেটআপ করা নেই, তাই বাকির টাকা দেখানো হয়নি।</p>'}`;
  return paged(monthTitle(ym)+' মাসের সার্ভিস চার্জ','','<tr><th style="width:42px">ক্রঃ</th><th style="width:52px">ফ্ল্যাট</th><th>মালিক</th><th style="width:78px">অবস্থা</th><th class="n" style="width:90px">পরিশোধ</th><th class="n" style="width:80px">বাকি</th><th style="width:150px">সর্বশেষ পেমেন্ট</th></tr>',trs,{pre,sizes:[20,30],cls:'sc'})}
 
@@ -50,7 +50,7 @@ function scYearReport(){const c=calc(),sm=prevOf(c.m),y=sm.slice(0,4),upto=+sm.s
  all.filter(t=>t.type==='income'&&t.flat).forEach(t=>smList(t).forEach(m=>{(paid[t.flat]??=new Set()).add(m)}));
  const trs=FLATS.map((x,i)=>{let due=0;
   const cells=MON.map((_,k)=>{const ym=y+'-'+String(k+1).padStart(2,'0');if(paid[x.f]&&paid[x.f].has(ym))return `<td class="c">${TICK}</td>`;if(k+1<=upto){due++;return `<td class="c">${CROSS}</td>`}return '<td class="c"></td>'});
-  return `<tr><td class="c">${bd(i+1)}</td><td>${x.f}</td><td>${esc(x.o)}</td>${cells.join('')}<td class="c"><b>${bd(due)}</b></td></tr>`});
+  return `<tr><td class="c">${bd(i+1)}</td><td>${x.f}</td><td>${esc(flatOwnerDisplay(x.f))}</td>${cells.join('')}<td class="c"><b>${bd(due)}</b></td></tr>`});
  const th='<tr><th>ক্রঃ</th><th>ফ্ল্যাট</th><th>মালিক</th>'+MON.map(m=>`<th>${m}</th>`).join('')+'<th>বাকি</th></tr>';
  return paged('সার্ভিস চার্জের বার্ষিক ছক',bd(y)+' সাল — '+monthTitle(sm)+' পর্যন্ত',th,trs,{sizes:[24,24],cls:'mx',post:`<div class="legend">${TICK} পরিশোধিত &nbsp; ${CROSS} বাকি (নির্বাচিত মাস পর্যন্ত) &nbsp; ফাঁকা = ভবিষ্যৎ মাস</div>`})}
 
