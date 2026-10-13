@@ -2126,7 +2126,7 @@ body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
    ===================================================================== */
 
 .login{
-  background:linear-gradient(135deg, #e8f4f0 0%, #c7e5dc 100%);
+  background:linear-gradient(135deg, #d4ebe5 0%, #a8d5c8 100%);
 }
 
 .login .box{
