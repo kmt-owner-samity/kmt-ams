@@ -122,7 +122,9 @@ function autoAmt() {
 
 function showOwner() {
   const o = $('owner');
-  if (o) o.textContent = flatOwnerDisplay($('fl').value);
+  if (o) o.textContent = typeof flatOwnerDisplay === 'function'
+    ? flatOwnerDisplay($('fl').value)
+    : ownerOf($('fl').value);
   autoAmt();
 }
 /* ============================================================
@@ -200,8 +202,8 @@ if (saveBtn) saveBtn.onclick = async () => {
   };
 if (!$('flatBox').hidden) {
   t.flat = $('fl').value;
-  t.owner = flatOwner(t.flat) || ownerOf(t.flat);
-  t.tenant = flatTenant(t.flat);
+  t.owner = typeof flatOwner === 'function' ? (flatOwner(t.flat) || ownerOf(t.flat)) : ownerOf(t.flat);
+  t.tenant = typeof flatTenant === 'function' ? flatTenant(t.flat) : '';
   t.smonths = [...sel].sort();
 }
   const was = editId;
