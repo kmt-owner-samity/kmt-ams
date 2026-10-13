@@ -45,6 +45,62 @@ const FLATS = [
   { f: '১৫-সি', o: 'মি. মোহাম্মদ হায়দার আলী' }
 ];
 
+/* =====================================================================
+   FLATS Sync — DB থেকে owner/tenant তথ্য নিয়ে FLATS update
+   ===================================================================== */
+function syncFlatsFromDb(dbFlats) {
+  if (!Array.isArray(dbFlats)) return;
+
+  // DB থেকে map বানান
+  const map = {};
+  dbFlats.forEach(f => {
+    map[f.flat_no] = {
+      owner_name: f.owner_name || '',
+      owner_phone: f.owner_phone || '',
+      tenant_name: f.tenant_name || '',
+      tenant_phone: f.tenant_phone || '',
+    };
+  });
+
+  // FLATS-এ update
+  FLATS.forEach(x => {
+    const db = map[x.f];
+    if (!db) return;
+    // পুরোনো 'o' field-এ owner_name রাখব (backward compatibility)
+    if (db.owner_name) x.o = db.owner_name;
+    x.owner_name = db.owner_name || x.o || '';
+    x.owner_phone = db.owner_phone || '';
+    x.tenant_name = db.tenant_name || '';
+    x.tenant_phone = db.tenant_phone || '';
+  });
+}
+
+/* ফ্ল্যাট থেকে owner + tenant display */
+function flatOwnerDisplay(flatNo) {
+  const x = FLATS.find(f => f.f === flatNo);
+  if (!x) return '';
+  const owner = x.owner_name || x.o || '';
+  const tenant = x.tenant_name || '';
+  if (!owner && !tenant) return '';
+  if (!owner) return tenant;
+  if (!tenant) return owner;
+  return `${owner} (ভাড়াটিয়াঃ ${tenant})`;
+}
+
+/* শুধু মালিকের নাম */
+function flatOwner(flatNo) {
+  const x = FLATS.find(f => f.f === flatNo);
+  if (!x) return '';
+  return x.owner_name || x.o || '';
+}
+
+/* শুধু ভাড়াটিয়ার নাম */
+function flatTenant(flatNo) {
+  const x = FLATS.find(f => f.f === flatNo);
+  if (!x) return '';
+  return x.tenant_name || '';
+}
+
 const ownerOf = f => (FLATS.find(x => x.f === f) || {}).o || '';
 const GR = { 'মেইনটেন্যান্স ও মেরামত': 'মেইনটেন্যান্স', 'অফিস ও প্রশাসনিক': 'প্রশাসনিক' };
 
