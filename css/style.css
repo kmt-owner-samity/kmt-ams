@@ -1482,9 +1482,17 @@ input.english-only::placeholder{
 .bulk-item .bulk-owner{
   font-size: .78rem;
   color: var(--mute);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+.bulk-item .bulk-tenant{
+  font-size: .75rem;
+  color: #b45309;
+  font-weight: 500;
+  line-height: 1.35;
+  margin-top: 1px;
 }
 
 /* Inputs */
