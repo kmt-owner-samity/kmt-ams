@@ -432,8 +432,9 @@ async function _cmReload() {
     if (typeof DB !== 'undefined' && typeof DB.loadRef === 'function') {
       await DB.loadRef();
     }
-    if (typeof syncFlatsFromDb === 'function') {
-      // No-op — শুধু safety
+    // Entry form-এর category dropdown refresh
+    if (typeof setType === 'function') {
+      try { setType(); } catch (e) { /* silent */ }
     }
   } catch (e) { /* silent */ }
 }
