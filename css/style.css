@@ -34,7 +34,6 @@ header{
 header h1{margin:0;font-size:1.1rem;font-weight:600}
 header small{opacity:.7;display:block;font-weight:400}
 
-/* whobar — header-এর ডান দিকে user name + icon buttons */
 .whobar{
   margin-top:12px;
   display:flex;
@@ -67,7 +66,6 @@ header small{opacity:.7;display:block;font-weight:400}
 .icon-btn:active{transform:scale(.94)}
 .icon-btn svg{width:18px;height:18px}
 
-/* User chip — user name + avatar */
 .user-chip{
   display:inline-flex;
   align-items:center;
@@ -97,7 +95,6 @@ header small{opacity:.7;display:block;font-weight:400}
   line-height:1
 }
 
-/* Gear menu */
 .gear-menu{position:relative;display:inline-block}
 .gear-panel{
   position:absolute;
@@ -169,7 +166,6 @@ label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
 .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
 .full{grid-column:1/-1}
 
-/* ============ BUTTONS ============ */
 .btn{
   border:0;border-radius:8px;
   padding:10px 16px;
@@ -190,7 +186,6 @@ label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
   gap:6px
 }
 
-/* ============ SEGMENTED TOGGLE ============ */
 .seg{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -211,7 +206,6 @@ label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
   box-shadow:0 1px 3px #0002
 }
 
-/* ============ SUMMARY CARDS ============ */
 .eq{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -246,7 +240,6 @@ label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
 .eq .i b{color:var(--in)}
 .eq .o b{color:var(--out)}
 
-/* ============ MONTH BAR ============ */
 .mbar{
   padding:12px 16px;
   display:flex;
@@ -269,10 +262,8 @@ label{display:block;font-size:.88rem;color:var(--mute);margin-bottom:4px}
   min-width:140px
 }
 
-/* ============ COLUMNS ============ */
 .cols{display:grid;gap:16px;grid-template-columns:1fr 1fr}
 
-/* ============ BREAKDOWN ============ */
 details{border-top:1px solid var(--line);padding:8px 0}
 details:first-of-type{border-top:0}
 summary{
@@ -302,7 +293,6 @@ summary::-webkit-details-marker{display:none}
 .in-c{color:var(--in)}
 .out-c{color:var(--out)}
 
-/* ============ TABLE ============ */
 table{width:100%;border-collapse:collapse;font-size:.92rem}
 th,td{
   text-align:left;
@@ -316,7 +306,6 @@ td.n,th.n{text-align:right;white-space:nowrap}
 .empty{color:var(--mute);text-align:center;padding:20px 8px}
 .x{border:0;background:none;color:var(--mute);cursor:pointer;font-size:1.1rem}
 
-/* ============ NAV TABS ============ */
 nav{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -349,7 +338,6 @@ nav button.on{
   color:#fff
 }
 
-/* ============ BADGE ============ */
 .badge{
   font-size:.8rem;
   padding:2px 8px;
@@ -381,13 +369,11 @@ nav button.on{
 }
 [hidden]{display:none!important}
 
-/* Z-INDEX LAYERING */
 #userOv{z-index:60}
 #invOv,#scOv,#flatOv,#bulkScOv{z-index:80}
 #dlg{z-index:100}
 #loginOv{z-index:200}
 
-/* ============ DATE INPUT ============ */
 .dwrap{position:relative}
 .dwrap #d{padding-right:46px}
 .cal{
@@ -415,7 +401,6 @@ nav button.on{
   cursor:pointer
 }
 
-/* ============ OWNER DISPLAY ============ */
 .owner{
   font-weight:700;
   margin-top:8px;
@@ -423,7 +408,13 @@ nav button.on{
 }
 
 /* ============ MONTH SLIDER ============ */
-.slider{display:flex;gap:6px;align-items:center}
+.slider{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  width:100%;
+  min-width:0
+}
 .track{
   display:flex;gap:8px;
   overflow-x:auto;
@@ -459,7 +450,6 @@ nav button.on{
   color:var(--acc)
 }
 
-/* ============ PAYMENT CHIPS ============ */
 .chips{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -504,7 +494,6 @@ nav button.on{
   outline-offset:2px
 }
 
-/* ============ ACCOUNT CARDS ============ */
 .acc3{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -540,7 +529,6 @@ nav button.on{
 }
 .sec{font-weight:700;margin:6px 0 8px}
 
-/* ============ ADMIN MENU ============ */
 .admin-menu{position:relative;display:inline-block}
 .admin-menu-btn{
   display:inline-flex;
@@ -674,11 +662,9 @@ nav button.on{
 }
 .user-actions button.danger:hover{background:#fee2e2}
 
-/* ============ ROW HELPERS ============ */
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .btnrow{display:grid;grid-template-columns:2fr 1fr;gap:10px}
 
-/* ============ ICONS (invoice/report) ============ */
 .ibtn{
   border:1px solid var(--line);
   background:#fff;
@@ -708,7 +694,6 @@ nav button.on{
 .act{text-align:center;white-space:nowrap}
 
 /* ============ INVOICE / REPORT OVERLAY ============ */
-/* ⚠️ কোনো flex / center নেই — normal block layout */
 .invbox{
   background:#fff;
   border-radius:16px;
@@ -736,7 +721,6 @@ nav button.on{
 #invBody{transform-origin:top left}
 #cap{position:fixed;left:-10000px;top:0}
 
-/* ============ A4 PAGE ============ */
 .a4{
   width:794px;
   min-height:1123px;
@@ -812,7 +796,6 @@ nav button.on{
 .tight .at td,.tight .at th{padding:5px 10px}
 .tight .sh{margin:12px 0 6px}
 
-/* ============ REPORT STYLES ============ */
 .strip{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
@@ -853,7 +836,6 @@ nav button.on{
 .a4 .at td small{font-size:12px}
 .tk{vertical-align:middle}
 
-/* ============ REPORTS BAR ============ */
 .repgrid{
   display:grid;
   grid-template-columns:repeat(5,1fr);
@@ -886,7 +868,6 @@ nav button.on{
   place-items:center
 }
 
-/* ============ SERVICE CHARGE SETUP ============ */
 .scrows{
   max-height:44vh;
   overflow:auto;
@@ -907,7 +888,6 @@ nav button.on{
 .scr small{color:var(--mute)}
 .scr input{width:110px;flex:none}
 
-/* ============ PROFILE MODAL ============ */
 #profileOv .box{max-width:440px}
 #profileOv label{
   display:block;
@@ -938,7 +918,6 @@ nav button.on{
   cursor:not-allowed
 }
 
-/* ============ LOGIN ============ */
 .login{background:var(--bg);z-index:90}
 .lsub{
   text-align:center;
@@ -953,18 +932,14 @@ nav button.on{
 }
 #loginMsg.lerr{color:var(--out)}
 
-/* ============ ROLE-BASED VISIBILITY ============ */
 body.r-viewer .wr-only,
 body.r-viewer .ib.ed,
 body.r-viewer .ib.del{display:none!important}
 body:not(.r-admin) .adm-only{display:none!important}
-
-/* Viewer flash fix */
 body.r-viewer .wr-only{display:none!important}
 body.r-accountant .wr-only{display:flex}
 body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
 
-/* ============ TOAST ============ */
 #toast{
   z-index:60;
   position:fixed;
@@ -1681,6 +1656,25 @@ body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
 
 @media(max-width:767px){
   input,select,textarea{font-size:16px !important}
+}
+
+/* =====================================================================
+   MONTH SLIDER — Mobile Fix (⚠️ NEW)
+   ===================================================================== */
+@media (max-width: 700px){
+  .arr{
+    width: 34px;
+    height: 38px;
+    font-size: 1rem;
+  }
+  .track{
+    gap: 6px;
+    padding: 2px 0;
+  }
+  .mc{
+    padding: 8px 10px;
+    font-size: .85rem;
+  }
 }
 
 /* ============ DARK MODE (Bulk + Flat Manager) ============ */
