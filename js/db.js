@@ -1,9 +1,6 @@
 /* =====================================================================
    db.js — Supabase ডাটা লেয়ার (REST + Auth)
    কাজী মোশাররফ টাওয়ার ভবন মালিক সমিতি
-   
-   DB.list/add/update/remove — সব Supabase কল করে
-   SB.loginByUsername — username দিয়ে login (নতুন)
    ===================================================================== */
 
 const NET_MSG = 'ডাটাবেজে সমস্যা হয়েছে, অ্যাডমিনের সাথে যোগাযোগ করুন';
@@ -104,7 +101,6 @@ const SB = {
     try { localStorage.removeItem('kmt_sess'); } catch (e) {}
   },
 
-  /* ---- Email + Password login (internal) ---- */
   async login(email, pw) {
     const r = await this.raw('/auth/v1/token?grant_type=password', {
       method: 'POST',
@@ -118,7 +114,6 @@ const SB = {
     await this.loadProfile();
   },
 
-  /* ---- Username → Email রূপান্তর (নতুন) ---- */
   async emailFromUsername(username) {
     const r = await fetch(this.url + '/rest/v1/rpc/login_email_for', {
       method: 'POST',
@@ -130,14 +125,12 @@ const SB = {
     return t ? JSON.parse(t) : null;
   },
 
-  /* ---- Username দিয়ে Login (নতুন) ---- */
   async loginByUsername(username, password) {
     const email = await this.emailFromUsername(username);
     if (!email) throw new DbError('ভুল ইউজারনেম বা পাসওয়ার্ড', 400);
     return await this.login(email, password);
   },
 
-  /* ---- Race-safe refresh ---- */
   async refresh() {
     if (this._refreshPromise) return this._refreshPromise;
 
@@ -186,25 +179,20 @@ const SB = {
     }
   },
 
-async loadProfile() {
-  const p = await this.req('/rest/v1/profiles?id=eq.' + this.uid() + '&select=login_id,full_name,role,is_active');
-  if (!p || !p[0] || !p[0].is_active) {
-    throw new DbError('এই অ্যাকাউন্টে এখনও কোনো ভূমিকা (role) দেওয়া হয়নি। অ্যাডমিনকে জানান।', 403);
-  }
-  this.profile = p[0];
-  // Email from session
-  if (this.sess && this.sess.user && this.sess.user.email) {
-    this.profile.email = this.sess.user.email;
-  }
-},
+  async loadProfile() {
+    const p = await this.req('/rest/v1/profiles?id=eq.' + this.uid() + '&select=login_id,full_name,role,is_active');
+    if (!p || !p[0] || !p[0].is_active) {
+      throw new DbError('এই অ্যাকাউন্টে এখনও কোনো ভূমিকা (role) দেওয়া হয়নি। অ্যাডমিনকে জানান।', 403);
+    }
+    this.profile = p[0];
+    if (this.sess && this.sess.user && this.sess.user.email) {
+      this.profile.email = this.sess.user.email;
+    }
+  },
 
   async logout() {
     try { await this.raw('/auth/v1/logout', { method: 'POST', body: {} }); } catch (e) {}
     this.clear();
-  },
-
-   async rpc(name, body) {
-    return await this.req('/rest/v1/rpc/' + name, { method: 'POST', body });
   },
 
   async verify(pw) {
@@ -223,7 +211,14 @@ async loadProfile() {
     await this.req('/auth/v1/user', { method: 'PUT', body: { password: pw } });
   },
 
-  /* ---- Admin: user management (নতুন) ---- */
+  async ping() {
+    return await this.req('/rest/v1/rpc/ping', { method: 'POST', body: {} });
+  },
+
+  async rpc(name, body) {
+    return await this.req('/rest/v1/rpc/' + name, { method: 'POST', body });
+  },
+
   async adminUserCreate({ email, password, login_id, full_name, role }) {
     return await this.req('/rest/v1/rpc/admin_user_create', {
       method: 'POST',
@@ -256,14 +251,11 @@ async loadProfile() {
     });
   },
 
-async adminUserList() {
-  return await this.req('/rest/v1/rpc/admin_user_list', { method: 'POST', body: {} });
-},
+  async adminUserList() {
+    return await this.req('/rest/v1/rpc/admin_user_list', { method: 'POST', body: {} });
+  },
 };
 
-/* =====================================================================
-   DB — Data Layer
-   ===================================================================== */
 const DB = {
   all: [],
   accId: {},
@@ -274,6 +266,7 @@ const DB = {
   scCatId: null,
   flatId: {},
   flatNo: {},
+  flatInfo: {},
   op: { cash: 0, nbl: 0, pbl: 0 },
   scc: { def: 0, per: {} },
 
@@ -320,23 +313,24 @@ const DB = {
       if (c.parent_id) this.catSub[c.parent_id + '|' + c.name] = c.id;
     });
 
-this.flatId = {};
-this.flatNo = {};
-this.flatInfo = {};
-fl.forEach(f => {
-  this.flatId[f.flat_no] = f.id;
-  this.flatNo[f.id] = f.flat_no;
-  this.flatInfo[f.flat_no] = {
-    owner_name: f.owner_name || '',
-    owner_phone: f.owner_phone || '',
-    tenant_name: f.tenant_name || '',
-    tenant_phone: f.tenant_phone || '',
-  };
-});
-     // FLATS config sync with DB
-if (typeof syncFlatsFromDb === 'function') {
-  syncFlatsFromDb(fl);
-}
+    this.flatId = {};
+    this.flatNo = {};
+    this.flatInfo = {};
+    fl.forEach(f => {
+      this.flatId[f.flat_no] = f.id;
+      this.flatNo[f.id] = f.flat_no;
+      this.flatInfo[f.flat_no] = {
+        owner_name: f.owner_name || '',
+        owner_phone: f.owner_phone || '',
+        tenant_name: f.tenant_name || '',
+        tenant_phone: f.tenant_phone || '',
+      };
+    });
+
+    // FLATS config sync with DB (config.js-এ থাকা function)
+    if (typeof syncFlatsFromDb === 'function') {
+      syncFlatsFromDb(fl);
+    }
 
     const d = st.find(x => x.key === 'sc_default');
     const per = {};
@@ -378,10 +372,10 @@ if (typeof syncFlatsFromDb === 'function') {
       amount: +r.amount,
       note: r.note || '',
       flat: r.flat_id ? (this.flatNo[r.flat_id] || '') : '',
-  owner: r.owner_name || '',
-  tenant: r.tenant_name || '',
-  smonths: (r.service_charge_months || []).map(m => m.month.slice(0, 7)).sort(),
-}));
+      owner: r.owner_name || '',
+      tenant: r.tenant_name || '',
+      smonths: (r.service_charge_months || []).map(m => m.month.slice(0, 7)).sort(),
+    }));
 
     tr.forEach(r => {
       const f = (this.accId[r.from_account_id] || {}).code;
@@ -415,18 +409,18 @@ if (typeof syncFlatsFromDb === 'function') {
     const a = this.accCode[t.acct];
     if (!a) throw new DbError('হিসাব "' + t.acct + '" ডাটাবেজে নেই।');
     if (t.flat && !this.flatId[t.flat]) throw new DbError('ফ্ল্যাট "' + t.flat + '" ডাটাবেজে নেই।');
-return {
-  p_date: t.date,
-  p_cat: cat,
-  p_sub: sub,
-  p_acct: a.id,
-  p_amount: t.amount,
-  p_flat: t.flat ? this.flatId[t.flat] : null,
-  p_owner: t.owner || null,
-  p_tenant_name: t.tenant || null,
-  p_note: t.note || null,
-  p_months: t.smonths && t.smonths.length ? t.smonths.map(m => m + '-01') : null,
-},
+    return {
+      p_date: t.date,
+      p_cat: cat,
+      p_sub: sub,
+      p_acct: a.id,
+      p_amount: t.amount,
+      p_flat: t.flat ? this.flatId[t.flat] : null,
+      p_owner: t.owner || null,
+      p_tenant_name: t.tenant || null,
+      p_note: t.note || null,
+      p_months: t.smonths && t.smonths.length ? t.smonths.map(m => m + '-01') : null,
+    };
   },
 
   async rpc(name, body) {
@@ -527,7 +521,6 @@ return {
     await this.loadRef();
   },
 
-  /* ---- Legacy localStorage import ---- */
   legacyCount() {
     try {
       return (JSON.parse(localStorage.getItem('kmt_tx')) || []).length;
