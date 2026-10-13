@@ -2121,3 +2121,14 @@ body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
     background: #334155;
   }
 }
+/* =====================================================================
+   LOGIN — Background gradient (safe — no position, no overflow)
+   ===================================================================== */
+
+.login{
+  background:linear-gradient(135deg, #e8f4f0 0%, #c7e5dc 100%);
+}
+
+.login .box{
+  box-shadow:0 20px 50px rgba(15,42,61,.18), 0 8px 20px rgba(15,42,61,.10);
+}
