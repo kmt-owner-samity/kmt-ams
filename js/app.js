@@ -53,7 +53,15 @@ const ymEn = ym => MON[+ym.slice(5) - 1] + '-' + ym.slice(2, 4);
 const prevYM = () => { const d = new Date(), x = new Date(d.getFullYear(), d.getMonth() - 1, 1); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0'); };
 const curYM = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
 const smList = t => (t.smonths || (t.smonth ? [t.smonth] : [])).slice().sort();
-const subOf = t => (t.type === 'transfer' ? [t.item, t.note] : [t.item, AN(t.acct), smList(t).length ? 'সার্ভিস চার্জ: ' + smList(t).map(ymEn).join(', ') : '', t.flat ? 'ফ্ল্যাট ' + t.flat : '', t.note]).filter(Boolean).map(esc).join(' · ');
+const subOf = t => {
+  if (t.type === 'transfer') return [t.item, t.note].filter(Boolean).map(esc).join(' · ');
+  const parts = [t.item, AN(t.acct)];
+  if (smList(t).length) parts.push('সার্ভিস চার্জ: ' + smList(t).map(ymEn).join(', '));
+  if (t.flat) parts.push('ফ্ল্যাট ' + t.flat);
+  if (t.tenant) parts.push('ভাড়াটিয়াঃ ' + t.tenant);
+  if (t.note) parts.push(t.note);
+  return parts.filter(Boolean).map(esc).join(' · ');
+};
 let editId = null, sel = new Set();
 
 function setSeg(t) {
@@ -114,10 +122,9 @@ function autoAmt() {
 
 function showOwner() {
   const o = $('owner');
-  if (o) o.textContent = ownerOf($('fl').value);
+  if (o) o.textContent = flatOwnerDisplay($('fl').value);
   autoAmt();
 }
-
 const aEl = $('a');
 if (aEl) aEl.addEventListener('input', () => { $('a').dataset.man = 1; });
 
@@ -175,11 +182,12 @@ if (saveBtn) saveBtn.onclick = async () => {
     group: $('g').value, item: $('s').value,
     acct: document.querySelector('[name=acct]:checked').value,
   };
-  if (!$('flatBox').hidden) {
-    t.flat = $('fl').value;
-    t.owner = ownerOf(t.flat);
-    t.smonths = [...sel].sort();
-  }
+if (!$('flatBox').hidden) {
+  t.flat = $('fl').value;
+  t.owner = flatOwner(t.flat) || ownerOf(t.flat);
+  t.tenant = flatTenant(t.flat);
+  t.smonths = [...sel].sort();
+}
   const was = editId;
   const btn = $('save'), lab = btn.textContent;
   btn.disabled = true;
