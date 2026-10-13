@@ -1723,12 +1723,16 @@ input.english-only::placeholder{
 }
 
 .fm-item{
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: 70px 1fr;
-  gap: 14px;
-  align-items: center;
+  grid-template-columns: 60px 1fr;
+  gap: 16px;
+  align-items: start;
+  transition: background .15s;
+}
+.fm-item:hover{
+  background: #f8fafc;
 }
 .fm-item:last-child{
   border-bottom: none;
@@ -1748,8 +1752,8 @@ input.english-only::placeholder{
 
 .fm-fields{
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 10px 14px;
+  grid-template-columns: 3fr 1.5fr;
+  gap: 12px 14px;
   grid-column: 2 / -1;
   min-width: 0;
 }
@@ -1761,23 +1765,22 @@ input.english-only::placeholder{
   min-width: 0;
 }
 .fm-field label{
-  font-size: .72rem;
+  font-size: .8rem;
   color: var(--mute);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .3px;
+  letter-spacing: .2px;
   margin: 0;
 }
 .fm-field input{
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border: 1.5px solid var(--line);
   border-radius: 8px;
   background: #fff;
   color: var(--ink);
-  font-size: .88rem;
+  font-size: .95rem;
   font-family: inherit;
-  transition: border-color .2s;
+  transition: border-color .2s, box-shadow .2s;
 }
 .fm-field input:focus{
   outline: none;
@@ -1801,28 +1804,38 @@ input.english-only::placeholder{
 
 .fm-owner-label{
   grid-column: 1 / -1;
-  font-size: .78rem;
+  font-size: .95rem;
   color: var(--in);
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
-  padding-bottom: 4px;
-  border-bottom: 1px dashed #d1fae5;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #d1fae5;
+  letter-spacing: -.01em;
+}
+.fm-owner-label svg{
+  width: 18px;
+  height: 18px;
 }
 .fm-tenant-label{
   grid-column: 1 / -1;
-  font-size: .78rem;
+  font-size: .95rem;
   color: #b45309;
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 6px;
-  margin-bottom: 2px;
-  padding-bottom: 4px;
-  border-bottom: 1px dashed #fde68a;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #fde68a;
+  letter-spacing: -.01em;
+}
+.fm-tenant-label svg{
+  width: 18px;
+  height: 18px;
 }
 
 /* ============ LIST PANEL (Tab 2) ============ */
@@ -1967,13 +1980,18 @@ input.english-only::placeholder{
     padding: 12px;
   }
 .fm-flat-no{
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.15rem;
-  color: var(--ink);
-  align-self: center;
-  padding-top: 0;
+  color: #fff;
+  background: linear-gradient(135deg, var(--in), #0d9668);
+  padding: 6px 10px;
+  border-radius: 8px;
+  text-align: center;
   white-space: nowrap;
   line-height: 1.2;
+  box-shadow: 0 2px 6px rgba(13, 150, 104, .25);
+  align-self: start;
+  margin-top: 2px;
 }
   .fm-fields{
     grid-template-columns: 1fr;
