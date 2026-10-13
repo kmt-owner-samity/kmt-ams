@@ -125,6 +125,15 @@ function showOwner() {
   if (o) o.textContent = flatOwnerDisplay($('fl').value);
   autoAmt();
 }
+/* ============================================================
+   Owner Display Helper
+   ============================================================ */
+function ownerDisplay(owner, tenant) {
+  if (!owner && !tenant) return '';
+  if (!owner) return tenant;
+  if (!tenant) return owner;
+  return `${owner} (ভাড়াটিয়াঃ ${tenant})`;
+}
 const aEl = $('a');
 if (aEl) aEl.addEventListener('input', () => { $('a').dataset.man = 1; });
 
