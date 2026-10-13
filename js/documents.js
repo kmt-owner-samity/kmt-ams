@@ -17,7 +17,9 @@ function stamp(word,col){const P=[];for(let i=0;i<64;i++){const a=i*Math.PI/32,q
  <text x="100" y="${big?116:108}" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="${big?44:21}" textLength="${big?96:100}" lengthAdjust="spacingAndGlyphs" transform="rotate(-12 100 100)">${word}</text></g></g></svg>`}
 function invHTML(t){const inc=t.type==='income',[y,m,d]=t.date.split('-');
  const sub=subOf(t),ms=smList(t);
- const ownerText = ownerDisplay(t.owner || flatOwner(t.flat) || ownerOf(t.flat), t.tenant || flatTenant(t.flat));
+ const ownerName = t.owner || (typeof flatOwner === 'function' ? flatOwner(t.flat) : '') || ownerOf(t.flat);
+ const tenantName = t.tenant || (typeof flatTenant === 'function' ? flatTenant(t.flat) : '');
+ const ownerText = typeof ownerDisplay === 'function' ? ownerDisplay(ownerName, tenantName) : ownerName;
  const cell=t.flat?`<b>${esc(ownerText)}</b><br>ফ্ল্যাট ${esc(t.flat)} এর মাসিক সার্ভিস চার্জ${ms.length?`<br>যে মাসের সার্ভিস চার্জ গৃহীতঃ ${ms.map(ymEn).join(', ')}`:''}<br><small>${[AN(t.acct),t.note].filter(Boolean).map(esc).join(' · ')}</small>`:`<b>${esc(t.group)}</b><br><small>${sub}</small>`;
  return `<div class="a4">${head()}<div class="it ${inc?'i':'o'}">${inc?'প্রাপ্তি রসিদ':'পেমেন্ট ভাউচার'}</div>
  <div class="im"><span>নং: <b>${esc(bd(t.no))}</b></span><span>তারিখ: <b>${bd(d+'/'+m+'/'+y)}</b></span></div>
