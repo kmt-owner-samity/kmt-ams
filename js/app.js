@@ -95,21 +95,56 @@ function setSel(arr) {
   const t = $('smTrack');
   if (!t) return;
 
-  // ⚠️ Force track to shrink — inline style (CSS-এর উপর depend না)
-  t.style.cssText = 'display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex:1 1 0%;min-width:0;max-width:100%;padding:4px 2px;';
-
-  // ⚠️ Slider-কে constrain
-  const slider = t.parentElement;
-  if (slider) {
-    slider.style.cssText = 'display:flex;gap:6px;align-items:center;width:100%;min-width:0;overflow:hidden;';
-  }
-
-  // ⚠️ Arrow buttons — fixed width
-  const smL = $('smL'), smR = $('smR');
-  if (smL) smL.style.cssText = 'flex:0 0 38px;width:38px;min-width:38px;max-width:38px;height:44px;';
-  if (smR) smR.style.cssText = 'flex:0 0 38px;width:38px;min-width:38px;max-width:38px;height:44px;';
-
+  // চিপ populate
   t.innerHTML = monthList(arr).map(ym => `<button type="button" class="mc${sel.has(ym) ? ' on' : ''}${ym > cur ? ' adv' : ''}" data-ym="${ym}">${ymEn(ym)}</button>`).join('');
+
+  // ⚠️ Track ও Slider-এ forced constrain
+  requestAnimationFrame(() => {
+    const slider = t.parentElement;
+    if (!slider) return;
+
+    // Slider-এ fixed layout
+    slider.style.display = 'grid';
+    slider.style.gridTemplateColumns = '40px 1fr 40px';
+    slider.style.gap = '6px';
+    slider.style.alignItems = 'center';
+    slider.style.width = '100%';
+    slider.style.minWidth = '0';
+    slider.style.overflow = 'hidden';
+
+    // Track-এ constrain
+    t.style.display = 'flex';
+    t.style.gap = '8px';
+    t.style.overflowX = 'auto';
+    t.style.overflowY = 'hidden';
+    t.style.scrollbarWidth = 'none';
+    t.style.minWidth = '0';
+    t.style.maxWidth = '100%';
+    t.style.width = '100%';
+    t.style.padding = '4px 2px';
+
+    // Arrow buttons — fixed 40px
+    const smL = $('smL'), smR = $('smR');
+    if (smL) {
+      smL.style.width = '40px';
+      smL.style.minWidth = '40px';
+      smL.style.maxWidth = '40px';
+      smL.style.height = '44px';
+    }
+    if (smR) {
+      smR.style.width = '40px';
+      smR.style.minWidth = '40px';
+      smR.style.maxWidth = '40px';
+      smR.style.height = '44px';
+    }
+
+    // Chip গুলো fixed
+    t.querySelectorAll('.mc').forEach(c => {
+      c.style.flexShrink = '0';
+      c.style.flexGrow = '0';
+    });
+  });
+
   focusSel();
 }
 
