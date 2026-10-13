@@ -328,8 +328,16 @@ const DB = {
     });
 
     // FLATS config sync with DB (config.js-এ থাকা function)
+      // FLATS config sync with DB (config.js-এ থাকা function)
     if (typeof syncFlatsFromDb === 'function') {
       syncFlatsFromDb(fl);
+    }
+
+    // CATS config sync with DB
+    // ⚠️ Active categories দরকার (is_active = true)
+    const activeCats = cat.filter(c => c.is_active !== false);
+    if (typeof syncCatsFromDb === 'function') {
+      syncCatsFromDb(activeCats);
     }
 
     const d = st.find(x => x.key === 'sc_default');
