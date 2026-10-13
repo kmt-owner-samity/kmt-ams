@@ -60,14 +60,17 @@ function openBulkSc() {
   bulkSel = {};
   const defAcct = 'cash';
 
-  FLATS.forEach(x => {
+    FLATS.forEach(x => {
     const rate = expAmt(x.f);
+    const ownerName = x.owner_name || x.o || '';
+    const tenantName = x.tenant_name || '';
     bulkSel[x.f] = {
       checked: true,
       date: todayISO,
       amount: rate > 0 ? rate : '',
       acct: defAcct,
-      owner: x.o,
+      owner: ownerName,
+      tenant: tenantName,
     };
   });
 
@@ -104,7 +107,7 @@ function renderBulkList() {
         </div>
         <div class="bulk-info">
           <div class="bulk-flat">${esc(x.f)}</div>
-          <div class="bulk-owner">${esc(x.o)}</div>
+          <div class="bulk-owner">${esc(flatOwnerDisplay(x.f))}</div>
         </div>
         <div class="bulk-inputs">
           <div class="dwrap" style="margin:0">
@@ -257,6 +260,7 @@ async function bulkSave() {
       amount: +s.amount,
       acct: s.acct,
       owner: s.owner,
+      tenant: s.tenant || '',
     });
   });
 
@@ -292,6 +296,7 @@ async function bulkSave() {
       amount: it.amount,
       flat: flatId,
       owner: it.owner || null,
+      tenant_name: it.tenant || null,
       month: monthFirstDay,
       note: '',
     };
