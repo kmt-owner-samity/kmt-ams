@@ -105,10 +105,11 @@ function renderBulkList() {
           <input type="checkbox" ${checked} data-role="check">
           <span class="box"></span>
         </div>
-        <div class="bulk-info">
-          <div class="bulk-flat">${esc(x.f)}</div>
-          <div class="bulk-owner">${esc(flatOwnerDisplay(x.f))}</div>
-        </div>
+             <div class="bulk-info">
+        <div class="bulk-flat">${esc(x.f)}</div>
+        <div class="bulk-owner">${esc(x.owner_name || x.o || '')}</div>
+        ${x.tenant_name ? `<div class="bulk-tenant">(ভাড়াটিয়াঃ ${esc(x.tenant_name)})</div>` : ''}
+      </div>
         <div class="bulk-inputs">
           <div class="dwrap" style="margin:0">
             <input type="text" inputmode="numeric" maxlength="10" placeholder="DD/MM/YYYY"
