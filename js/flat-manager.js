@@ -73,8 +73,8 @@ function renderEditList() {
     <div class="fm-item" data-flat-no="${esc(f.flat_no)}">
       <div class="fm-flat-no">${esc(f.flat_no)}</div>
       <div class="fm-fields">
-        <div class="fm-owner-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+                <div class="fm-owner-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
           মালিক
         </div>
         <div class="fm-field">
@@ -86,8 +86,8 @@ function renderEditList() {
           <input type="tel" data-role="owner_phone" value="${esc(f.owner_phone)}" maxlength="11" inputmode="numeric" placeholder="১১ ডিজিট" autocomplete="off">
         </div>
 
-        <div class="fm-tenant-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>
+                <div class="fm-tenant-label">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>
           ভাড়াটিয়া (ঐচ্ছিক)
         </div>
         <div class="fm-field tenant">
