@@ -291,7 +291,7 @@ const DB = {
     const [acc, cat, fl, st, rt] = await Promise.all([
       SB.req('/rest/v1/accounts?select=id,code,name,kind,opening_balance&order=id'),
       SB.req('/rest/v1/categories?select=id,kind,name,parent_id,is_service_charge&is_active=eq.true'),
-      SB.req('/rest/v1/flats?select=id,flat_no,owner_name&is_active=eq.true'),
+      SB.req('/rest/v1/flats?select=id,flat_no,owner_name,owner_phone,tenant_name,tenant_phone&is_active=eq.true'),
       SB.req('/rest/v1/settings?select=key,value'),
       SB.req('/rest/v1/service_charge_rates?select=flat_id,monthly_amount,effective_from&order=effective_from.desc'),
     ]);
@@ -320,12 +320,23 @@ const DB = {
       if (c.parent_id) this.catSub[c.parent_id + '|' + c.name] = c.id;
     });
 
-    this.flatId = {};
-    this.flatNo = {};
-    fl.forEach(f => {
-      this.flatId[f.flat_no] = f.id;
-      this.flatNo[f.id] = f.flat_no;
-    });
+this.flatId = {};
+this.flatNo = {};
+this.flatInfo = {};
+fl.forEach(f => {
+  this.flatId[f.flat_no] = f.id;
+  this.flatNo[f.id] = f.flat_no;
+  this.flatInfo[f.flat_no] = {
+    owner_name: f.owner_name || '',
+    owner_phone: f.owner_phone || '',
+    tenant_name: f.tenant_name || '',
+    tenant_phone: f.tenant_phone || '',
+  };
+});
+     // FLATS config sync with DB
+if (typeof syncFlatsFromDb === 'function') {
+  syncFlatsFromDb(fl);
+}
 
     const d = st.find(x => x.key === 'sc_default');
     const per = {};
@@ -353,7 +364,7 @@ const DB = {
   },
 
   async load() {
-    const tx = await this.page('/rest/v1/transactions?select=id,doc_no,kind,txn_date,category_id,sub_category_id,account_id,amount,flat_id,owner_name,note,service_charge_months(month)&deleted_at=is.null&order=txn_date.asc,created_at.asc');
+    const tx = await this.page('/rest/v1/transactions?select=id,doc_no,kind,txn_date,category_id,sub_category_id,account_id,amount,flat_id,owner_name,tenant_name,note,service_charge_months(month)&deleted_at=is.null&order=txn_date.asc,created_at.asc');
     const tr = await this.page('/rest/v1/transfers?select=id,transfer_date,from_account_id,to_account_id,amount,note&order=transfer_date.asc,created_at.asc');
 
     const L = tx.map(r => ({
@@ -367,9 +378,10 @@ const DB = {
       amount: +r.amount,
       note: r.note || '',
       flat: r.flat_id ? (this.flatNo[r.flat_id] || '') : '',
-      owner: r.owner_name || '',
-      smonths: (r.service_charge_months || []).map(m => m.month.slice(0, 7)).sort(),
-    }));
+  owner: r.owner_name || '',
+  tenant: r.tenant_name || '',
+  smonths: (r.service_charge_months || []).map(m => m.month.slice(0, 7)).sort(),
+}));
 
     tr.forEach(r => {
       const f = (this.accId[r.from_account_id] || {}).code;
@@ -403,17 +415,18 @@ const DB = {
     const a = this.accCode[t.acct];
     if (!a) throw new DbError('হিসাব "' + t.acct + '" ডাটাবেজে নেই।');
     if (t.flat && !this.flatId[t.flat]) throw new DbError('ফ্ল্যাট "' + t.flat + '" ডাটাবেজে নেই।');
-    return {
-      p_date: t.date,
-      p_cat: cat,
-      p_sub: sub,
-      p_acct: a.id,
-      p_amount: t.amount,
-      p_flat: t.flat ? this.flatId[t.flat] : null,
-      p_owner: t.owner || null,
-      p_note: t.note || null,
-      p_months: t.smonths && t.smonths.length ? t.smonths.map(m => m + '-01') : null,
-    };
+return {
+  p_date: t.date,
+  p_cat: cat,
+  p_sub: sub,
+  p_acct: a.id,
+  p_amount: t.amount,
+  p_flat: t.flat ? this.flatId[t.flat] : null,
+  p_owner: t.owner || null,
+  p_tenant_name: t.tenant || null,
+  p_note: t.note || null,
+  p_months: t.smonths && t.smonths.length ? t.smonths.map(m => m + '-01') : null,
+},
   },
 
   async rpc(name, body) {
