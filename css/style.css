@@ -1667,16 +1667,27 @@ body:not(.r-admin):not(.r-accountant) .wr-only{display:none!important}
    MONTH SLIDER — Mobile Fix (⚠️ NEW)
    ===================================================================== */
 @media (max-width: 700px){
+  .slider{
+    width: 100% !important;
+    overflow: hidden !important;
+  }
   .arr{
-    width: 34px;
-    height: 38px;
+    flex: 0 0 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 40px !important;
     font-size: 1rem;
   }
   .track{
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
     gap: 6px;
     padding: 2px 0;
   }
   .mc{
+    flex: 0 0 auto !important;
     padding: 8px 10px;
     font-size: .85rem;
   }
