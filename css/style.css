@@ -429,6 +429,7 @@ nav button.on{
   overflow-x:auto;
   scrollbar-width:none;
   flex:1;
+  min-width:0;
   padding:4px 2px
 }
 .track::-webkit-scrollbar{display:none}
