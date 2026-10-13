@@ -605,10 +605,18 @@ nav button.on{
   background:#fff;
   border-radius:16px;
   padding:16px;
-  max-width: 1100px;
-  width: 100%;
+  max-width:100%;
   max-height:94vh;
-  overflow:auto
+  overflow:auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.invbox > .row,
+.invbox > .ibar,
+.invbox > #invFit{
+  width: 100%;
+  max-width: 826px;
 }
 .ibar{
   position:sticky;
@@ -621,7 +629,12 @@ nav button.on{
   margin-top:20px;
   border-top:2px dashed #cbd5e1
 }
-#invFit{overflow:hidden;border:1px solid var(--line)}
+#invFit{
+  overflow: hidden;
+  border: 1px solid var(--line);
+  margin: 0 auto;
+  display: block;
+}
 #invBody{transform-origin:top left}
 #cap{position:fixed;left:-10000px;top:0}
 
@@ -1739,15 +1752,6 @@ input.english-only::placeholder{
 }
 .fm-item:hover{
   background: #f8fafc;
-}
-
-.fm-flat-no{
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--ink);
-  padding-top: 22px;
-  white-space: nowrap;
-  line-height: 1.2;
 }
 
 .fm-fields{
