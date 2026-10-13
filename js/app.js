@@ -94,6 +94,21 @@ function setSel(arr) {
   const cur = curYM();
   const t = $('smTrack');
   if (!t) return;
+
+  // ⚠️ Force track to shrink — inline style (CSS-এর উপর depend না)
+  t.style.cssText = 'display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex:1 1 0%;min-width:0;max-width:100%;padding:4px 2px;';
+
+  // ⚠️ Slider-কে constrain
+  const slider = t.parentElement;
+  if (slider) {
+    slider.style.cssText = 'display:flex;gap:6px;align-items:center;width:100%;min-width:0;overflow:hidden;';
+  }
+
+  // ⚠️ Arrow buttons — fixed width
+  const smL = $('smL'), smR = $('smR');
+  if (smL) smL.style.cssText = 'flex:0 0 38px;width:38px;min-width:38px;max-width:38px;height:44px;';
+  if (smR) smR.style.cssText = 'flex:0 0 38px;width:38px;min-width:38px;max-width:38px;height:44px;';
+
   t.innerHTML = monthList(arr).map(ym => `<button type="button" class="mc${sel.has(ym) ? ' on' : ''}${ym > cur ? ' adv' : ''}" data-ym="${ym}">${ymEn(ym)}</button>`).join('');
   focusSel();
 }
